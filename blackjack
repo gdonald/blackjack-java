@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+javac -d . $(find . -name "*.java")
+java Main
