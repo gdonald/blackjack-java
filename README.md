@@ -10,6 +10,10 @@ Console Blackjack written in Java
 
     ./blackjack
 
+### License
+
+[![GitHub](https://img.shields.io/github/license/gdonald/blackjack-java?color=aa0000)](https://github.com/gdonald/blackjack-java/blob/main/LICENSE)
+
 ### Alternative Implementations:
 
 I've written Blackjack in several other languages:
