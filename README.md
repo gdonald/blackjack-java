@@ -12,7 +12,7 @@ Console Blackjack written in Java
 
 ### License
 
-[![GitHub](https://img.shields.io/github/license/gdonald/blackjack-java?color=aa0000)](https://github.com/gdonald/blackjack-java/blob/master/LICENSE)
+[![GitHub](https://img.shields.io/github/license/gdonald/blackjack-java?color=aa0000)](https://github.com/gdonald/blackjack-java/blob/main/LICENSE)
 
 ### Alternative Implementations:
 
