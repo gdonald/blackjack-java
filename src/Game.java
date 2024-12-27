@@ -3,11 +3,12 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public class Game {
+    private final BufferedReader reader;
+
     private static final String SAVE_FILE = "blackjack.txt";
     private static final int MIN_BET = 500;
     private static final int MAX_BET = 10000000;
@@ -21,11 +22,12 @@ public class Game {
     private int currentBet;
     private DealerHand dealerHand;
     private int currentHand;
-    private final List<PlayerHand> playerHands;
+    private final ArrayList<PlayerHand> playerHands;
     private boolean quitting;
 
     public Game() {
-        this.shoe = new Shoe();
+        this.reader = new BufferedReader(new InputStreamReader(System.in));
+        this.shoe = new Shoe(this);
         this.numDecks = 1;
         this.deckType = 1;
         this.faceType = 1;
@@ -34,6 +36,10 @@ public class Game {
         this.playerHands = new ArrayList<>();
         this.quitting = false;
         loadGame();
+    }
+
+    public int getNumDecks() {
+        return numDecks;
     }
 
     public String cardFace(int value, int suit) {
@@ -63,7 +69,7 @@ public class Game {
         hand.getAction();
     }
 
-    public List<PlayerHand> getPlayerHands() {
+    public ArrayList<PlayerHand> getPlayerHands() {
         return playerHands;
     }
 
@@ -73,27 +79,31 @@ public class Game {
         playerHands.add(newHand);
 
         while (handCount > currentHand) {
-            PlayerHand handToCopy = playerHands.get(handCount - 1);
-            playerHands.set(handCount, handToCopy);
+            PlayerHand playerHand = playerHands.get(handCount - 1).clone();
+            playerHands.set(handCount, playerHand);
             handCount--;
         }
 
-        PlayerHand playerHand = playerHands.get(currentHand);
+        PlayerHand currentPlayerHand = playerHands.get(currentHand);
         PlayerHand splitHand = playerHands.get(currentHand + 1);
 
-        splitHand.cards = List.of(playerHand.getCards().get(1));
-        playerHand.cards = List.of(playerHand.getCards().get(0));
-        playerHand.dealCard();
+        Card splitCard1 = currentPlayerHand.cards.get(1).clone();
+        Card splitCard0 = currentPlayerHand.cards.get(0).clone();
 
-        if (playerHand.isDone()) {
-            playerHand.process();
+        splitHand.cards = new ArrayList<Card>();
+        splitHand.cards.add(splitCard1);
+        currentPlayerHand.cards = new ArrayList<>();
+        currentPlayerHand.cards.add(splitCard0);
+        currentPlayerHand.dealCard();
+
+        if (currentPlayerHand.isDone()) {
+            currentPlayerHand.process();
             return;
         }
 
         drawHands();
-        playerHand.getAction();
+        currentPlayerHand.getAction();
     }
-
 
     public int allBets() {
         int bets = 0;
@@ -131,156 +141,132 @@ public class Game {
     }
 
     public void getNewBet() {
-        clear();
         drawHands();
-        System.out.printf("  Current Bet: $%.2f  Enter New Bet: $", currentBet / 100.0);
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        currentBet = Integer.parseInt(input) * 100;
+        System.out.printf("  (1) $5  (2) $10  (3) $25  (4) $100");
+
+        char c = getChar();
+
+        switch (c) {
+            case '1':
+                currentBet = 500;
+                return;
+            case '2':
+                currentBet = 1000;
+                return;
+            case '3':
+                currentBet = 2500;
+                return;
+            case '4':
+                currentBet = 10000;
+                return;
+        }
+
         normalizeBet();
         dealNewHand();
     }
 
     public void getNewNumDecks() {
-        clear();
         drawHands();
         System.out.printf("  Number of Decks: %d  Enter New Number of Decks (1-8): ", numDecks);
-        Scanner scanner = new Scanner(System.in);
-        int tmp = scanner.nextInt();
 
-        if (tmp < 1) {
-            tmp = 1;
-        } else if (tmp > 8) {
-            tmp = 8;
+        char c = getChar();
+        int newNumDecks = c - '0';
+
+        if (newNumDecks < 1) {
+            newNumDecks = 1;
+        } else if (newNumDecks > 8) {
+            newNumDecks = 8;
         }
 
-        this.numDecks = tmp;
+        this.numDecks = newNumDecks;
         gameOptions();
     }
 
     public void getNewDeckType() {
-        clear();
         drawHands();
         System.out.println(" (1) Regular  (2) Aces  (3) Jacks  (4) Aces & Jacks  (5) Sevens  (6) Eights");
-        boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim();
-            int c;
-            try {
-                c = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number between 1 and 6.");
-                continue;
-            }
+        char c = getChar();
+        int newDeckType = c - '0';
 
-            if (c > 0 && c < 7) {
-                decisionMade = true;
-                deckType = c;
-                if (c > 1) {
-                    this.numDecks = 8;
-                }
-                shoe.buildNewShoe(deckType);
-                saveGame();
+        if (newDeckType > 0 && newDeckType < 7) {
+            deckType = newDeckType;
+            if (newDeckType > 1) {
+                this.numDecks = 8;
             }
-
-            if (decisionMade) {
-                drawHands();
-                betOptions();
-            }
+            shoe.buildNewShoe(deckType);
+            saveGame();
+            return;
         }
+
+        getNewDeckType();
     }
 
     public void getNewFaceType() {
-        clear();
         drawHands();
-        System.out.println("(1) A♠  (2) 🂡");
-        boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
+        System.out.println(" (1) A♠  (2) 🂡");
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim();
+        char c = getChar();
+        int newFaceType = c - '0';
 
-            if (input.equals("1") || input.equals("2")) {
-                decisionMade = true;
-                faceType = Integer.parseInt(input);
-                saveGame();
-            }
-
-            if (decisionMade) {
-                drawHands();
-                betOptions();
-            } else {
-                System.out.println("Invalid input. Please enter 1 or 2.");
-            }
+        if (newFaceType == 1 || newFaceType == 2) {
+            faceType = newFaceType;
+            saveGame();
+            return;
         }
+
+        drawHands();
+        getNewFaceType();
     }
 
     public void gameOptions() {
-        clear();
         drawHands();
         System.out.println(" (N) Number of Decks  (T) Deck Type  (F) Face Type  (B) Back");
-        boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim().toLowerCase();
+        char c = getChar();
 
-            switch (input) {
-                case "n":
-                    decisionMade = true;
-                    getNewNumDecks();
-                    break;
-                case "t":
-                    decisionMade = true;
-                    getNewDeckType();
-                    break;
-                case "f":
-                    decisionMade = true;
-                    getNewFaceType();
-                    break;
-                case "b":
-                    decisionMade = true;
-                    clear();
-                    drawHands();
-                    betOptions();
-                    break;
-                default:
-                    System.out.println("Invalid input. Please choose (N), (T), (F), or (B).");
-            }
+        switch (c) {
+            case 'n':
+                getNewNumDecks();
+                return;
+            case 't':
+                getNewDeckType();
+                return;
+            case 'f':
+                getNewFaceType();
+                return;
+            case 'b':
+                drawHands();
+                betOptions();
+                return;
         }
+
+        drawHands();
+        gameOptions();
     }
 
     public void betOptions() {
         System.out.println(" (D) Deal Hand  (B) Change Bet  (O) Options  (Q) Quit");
-        boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim().toLowerCase();
+        char c = getChar();
 
-            switch (input) {
-                case "d":
-                    decisionMade = true;
-                    break;
-                case "b":
-                    decisionMade = true;
-                    getNewBet();
-                    break;
-                case "o":
-                    decisionMade = true;
-                    gameOptions();
-                    break;
-                case "q":
-                    decisionMade = true;
-                    this.quitting = true;
-                    clear();
-                    break;
-                default:
-                    System.out.println("Invalid input. Please choose (D), (B), (O), or (Q).");
-            }
+        switch (c) {
+            case 'd':
+                return;
+            case 'b':
+                getNewBet();
+                return;
+            case 'o':
+                gameOptions();
+                return;
+            case 'q':
+                this.quitting = true;
+                clear();
+                return;
         }
+
+        drawHands();
+        betOptions();
     }
 
     public void insureHand() {
@@ -378,28 +364,21 @@ public class Game {
     }
 
     public void askInsurance() {
-        System.out.println("Insurance? (Y) Yes (N) No");
-        boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
+        System.out.println(" Insurance? (Y) Yes (N) No");
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim().toLowerCase();
+        char c = getChar();
 
-            switch (input) {
-                case "y":
-                    decisionMade = true;
-                    insureHand();
-                    break;
-
-                case "n":
-                    decisionMade = true;
-                    noInsurance();
-                    break;
-
-                default:
-                    System.out.println("Invalid input. Please enter 'Y' for Yes or 'N' for No.");
-            }
+        switch (c) {
+            case 'y':
+                insureHand();
+                return;
+            case 'n':
+                noInsurance();
+                return;
         }
+
+        drawHands();
+        askInsurance();
     }
 
     public void dealNewHand() {
@@ -442,7 +421,7 @@ public class Game {
         for (PlayerHand playerHand : playerHands) {
             output.append(playerHand).append("\n");
         }
-        System.out.println(output);
+        System.out.print(output);
     }
 
     public void saveGame() {
@@ -470,6 +449,17 @@ public class Game {
             money = 10000;
             currentBet = MIN_BET;
         }
+    }
+
+    public char getChar() {
+        try {
+            return (char) reader.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        return 0;
     }
 
     public void clear() {

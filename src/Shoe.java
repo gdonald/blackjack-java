@@ -3,13 +3,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Shoe {
-    private static final int[] SHUFFLE_SPECS = {80, 81, 82, 84, 86, 89, 92, 95};
-    private final int numDecks;
-    private final List<Card> cards;
+    private final Game game;
+    private static final int[] SHUFFLE_SPECS = { 80, 81, 82, 84, 86, 89, 92, 95 };
+    private final ArrayList<Card> cards;
     private static final int CARDS_PER_DECK = 52;
 
-    public Shoe() {
-        this.numDecks = 1;
+    public Shoe(Game game) {
+        this.game = game;
         this.cards = new ArrayList<>();
     }
 
@@ -21,7 +21,7 @@ public class Shoe {
         int cardsDealt = totalCards - cards.size();
         double used = (cardsDealt / (double) totalCards) * 100.0;
 
-        return used > SHUFFLE_SPECS[numDecks - 1];
+        return used > SHUFFLE_SPECS[game.getNumDecks() - 1];
     }
 
     public void shuffle() {
@@ -60,7 +60,7 @@ public class Shoe {
     }
 
     public int getTotalCards() {
-        return numDecks * CARDS_PER_DECK;
+        return game.getNumDecks() * CARDS_PER_DECK;
     }
 
     private void newShoe(List<Integer> values) {
@@ -68,7 +68,7 @@ public class Shoe {
         cards.clear();
 
         while (cards.size() < totalCards) {
-            for (int deck = 0; deck < numDecks; deck++) {
+            for (int deck = 0; deck < game.getNumDecks(); deck++) {
                 for (int suit = 0; suit < 4; suit++) {
                     if (cards.size() >= totalCards) {
                         break;

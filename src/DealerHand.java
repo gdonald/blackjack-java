@@ -1,4 +1,4 @@
-public class DealerHand  extends Hand {
+public class DealerHand extends Hand {
     private boolean hideDownCard;
 
     public DealerHand(Game game) {
@@ -15,28 +15,7 @@ public class DealerHand  extends Hand {
     }
 
     public int getValue(CountMethod countMethod) {
-        int total = 0;
-
-        for (int i = 0; i < cards.size(); i++) {
-            if (i == 1 && hideDownCard) {
-                continue;
-            }
-
-            int cardValue = cards.get(i).value() + 1;
-            int v = cardValue > 9 ? 10 : cardValue;
-
-            if (countMethod == CountMethod.SOFT && v == 1 && total < 11) {
-                v = 11;
-            }
-
-            total += v;
-        }
-
-        if (countMethod == CountMethod.SOFT && total > 21) {
-            return getValue(CountMethod.HARD);
-        }
-
-        return total;
+        return calculateValue(countMethod, hideDownCard);
     }
 
     @Override

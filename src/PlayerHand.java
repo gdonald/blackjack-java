@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class PlayerHand extends Hand {
     private int bet;
@@ -14,7 +13,14 @@ public class PlayerHand extends Hand {
         this.paid = false;
     }
 
-    public List<Card> getCards() {
+    @Override
+    public PlayerHand clone() {
+        PlayerHand cloned = (PlayerHand) super.clone();
+        cloned.game = this.game;
+        return cloned;
+    }
+
+    public ArrayList<Card> getCards() {
         return cards;
     }
 
@@ -78,24 +84,7 @@ public class PlayerHand extends Hand {
     }
 
     public int getValue(CountMethod countMethod) {
-        int total = 0;
-
-        for (Card card : cards) {
-            int tmpValue = card.value() + 1;
-            int v = (tmpValue > 9) ? 10 : tmpValue;
-
-            if (countMethod == CountMethod.SOFT && v == 1 && total < 11) {
-                v = 11;
-            }
-
-            total += v;
-        }
-
-        if (countMethod == CountMethod.SOFT && total > 21) {
-            return getValue(CountMethod.HARD);
-        }
-
-        return total;
+        return calculateValue(countMethod, false);
     }
 
     public boolean isDone() {
@@ -204,32 +193,38 @@ public class PlayerHand extends Hand {
         System.out.println(out);
 
         boolean decisionMade = false;
-        Scanner scanner = new Scanner(System.in);
+        char c = game.getChar();
 
-        while (!decisionMade) {
-            String input = scanner.nextLine().trim().toLowerCase();
-            switch (input) {
-                case "h":
+        switch (c) {
+            case 'h':
+                if (canHit()) {
                     decisionMade = true;
                     hit();
-                    break;
-                case "s":
+                    return;
+                }
+            case 's':
+                if (canStand()) {
                     decisionMade = true;
                     stand();
-                    break;
-                case "p":
-                    if (canSplit()) {
-                        decisionMade = true;
-                        game.splitCurrentHand();
-                    }
-                    break;
-                case "d":
+                    return;
+                }
+            case 'p':
+                if (canSplit()) {
+                    decisionMade = true;
+                    game.splitCurrentHand();
+                    return;
+                }
+            case 'd':
+                if (canDbl()) {
                     decisionMade = true;
                     dbl();
-                    break;
-                default:
-                    System.out.println("Invalid input. Please choose (H), (S), (P), or (D).");
-            }
+                    return;
+                }
+        }
+
+        if (!decisionMade) {
+            game.drawHands();
+            getAction();
         }
     }
 }

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
-javac -d . $(find . -name "*.java")
-java Main
+javac -d ./build $(find . -name "*.java")
+
+stty -icanon min 1 time 0
+java -cp ./build Main
+stty icanon min 1 time 0
