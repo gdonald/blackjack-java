@@ -59,14 +59,17 @@ public class Game {
 
     public void playMoreHands() {
         currentHand++;
-        PlayerHand hand = playerHands.get(currentHand);
-        hand.dealCard();
-        if (hand.isDone()) {
-            hand.process();
+
+        PlayerHand playerHand = playerHands.get(currentHand);
+        playerHand.dealCard();
+
+        if (playerHand.isDone()) {
+            playerHand.process();
             return;
         }
+
         drawHands();
-        hand.getAction();
+        playerHand.getAction();
     }
 
     public ArrayList<PlayerHand> getPlayerHands() {
@@ -106,11 +109,9 @@ public class Game {
     }
 
     public int allBets() {
-        int bets = 0;
-        for (PlayerHand hand : playerHands) {
-            bets += hand.getBet();
-        }
-        return bets;
+        return playerHands.stream()
+                .mapToInt(PlayerHand::getBet)
+                .sum();
     }
 
     public int getMoney() {
@@ -135,6 +136,7 @@ public class Game {
         } else if (currentBet > MAX_BET) {
             currentBet = MAX_BET;
         }
+
         if (currentBet > money) {
             currentBet = money;
         }
@@ -142,11 +144,9 @@ public class Game {
 
     public void getNewBet() {
         drawHands();
-        System.out.printf("  (1) $5  (2) $10  (3) $25  (4) $100");
+        System.out.printf(" (1) $5  (2) $10  (3) $25  (4) $100");
 
-        char c = getChar();
-
-        switch (c) {
+        switch (getChar()) {
             case '1':
                 currentBet = 500;
                 return;
@@ -167,10 +167,9 @@ public class Game {
 
     public void getNewNumDecks() {
         drawHands();
-        System.out.printf("  Number of Decks: %d  Enter New Number of Decks (1-8): ", numDecks);
+        System.out.printf(" Number of Decks: %d  Enter New Number of Decks (1-8): ", numDecks);
 
-        char c = getChar();
-        int newNumDecks = c - '0';
+        int newNumDecks = getChar() - '0';
 
         if (newNumDecks < 1) {
             newNumDecks = 1;
@@ -186,15 +185,17 @@ public class Game {
         drawHands();
         System.out.println(" (1) Regular  (2) Aces  (3) Jacks  (4) Aces & Jacks  (5) Sevens  (6) Eights");
 
-        char c = getChar();
-        int newDeckType = c - '0';
+        int newDeckType = getChar() - '0';
 
         if (newDeckType > 0 && newDeckType < 7) {
             deckType = newDeckType;
+
             if (newDeckType > 1) {
                 this.numDecks = 8;
             }
+
             shoe.buildNewShoe(deckType);
+
             saveGame();
             return;
         }
@@ -206,8 +207,7 @@ public class Game {
         drawHands();
         System.out.println(" (1) A♠  (2) 🂡");
 
-        char c = getChar();
-        int newFaceType = c - '0';
+        int newFaceType = getChar() - '0';
 
         if (newFaceType == 1 || newFaceType == 2) {
             faceType = newFaceType;
@@ -223,9 +223,7 @@ public class Game {
         drawHands();
         System.out.println(" (N) Number of Decks  (T) Deck Type  (F) Face Type  (B) Back");
 
-        char c = getChar();
-
-        switch (c) {
+        switch (getChar()) {
             case 'n':
                 getNewNumDecks();
                 return;
@@ -248,9 +246,7 @@ public class Game {
     public void betOptions() {
         System.out.println(" (D) Deal Hand  (B) Change Bet  (O) Options  (Q) Quit");
 
-        char c = getChar();
-
-        switch (c) {
+        switch (getChar()) {
             case 'd':
                 return;
             case 'b':
@@ -297,11 +293,14 @@ public class Game {
                 if (playerHand.isBlackjack()) {
                     playerHand.setBet((int) (playerHand.getBet() * 1.5));
                 }
+
                 money += playerHand.getBet();
                 playerHand.setStatus(HandStatus.WON);
+
             } else if (playerHandValue < dealerHandValue) {
                 money -= playerHand.getBet();
                 playerHand.setStatus(HandStatus.LOST);
+
             } else {
                 playerHand.setStatus(HandStatus.PUSH);
             }
@@ -312,32 +311,34 @@ public class Game {
     }
 
     public boolean needToPlayDealerHand() {
-        for (PlayerHand hand : playerHands) {
-            if (!(hand.isBusted() || hand.isBlackjack())) {
-                return true;
-            }
-        }
-        return false;
+        return playerHands.stream()
+                .anyMatch(hand -> !(hand.isBusted() || hand.isBlackjack()));
     }
 
     public void playDealerHand() {
         if (dealerHand.isBlackjack()) {
             dealerHand.setHideDownCard(false);
         }
+
         if (!needToPlayDealerHand()) {
             dealerHand.setPlayed(true);
             payHands();
             return;
         }
+
         dealerHand.setHideDownCard(false);
+
         int softCount = dealerHand.getValue(CountMethod.SOFT);
         int hardCount = dealerHand.getValue(CountMethod.HARD);
+
         while (softCount < 18 && hardCount < 17) {
             dealerHand.dealCard();
             softCount = dealerHand.getValue(CountMethod.SOFT);
             hardCount = dealerHand.getValue(CountMethod.HARD);
         }
+
         dealerHand.setPlayed(true);
+
         payHands();
     }
 
@@ -345,9 +346,11 @@ public class Game {
         if (dealerHand.isBlackjack()) {
             dealerHand.setHideDownCard(false);
             dealerHand.setPlayed(true);
+
             payHands();
             drawHands();
             betOptions();
+
             return;
         }
 
@@ -356,6 +359,7 @@ public class Game {
             playDealerHand();
             drawHands();
             betOptions();
+
             return;
         }
 
@@ -364,11 +368,9 @@ public class Game {
     }
 
     public void askInsurance() {
-        System.out.println(" Insurance? (Y) Yes (N) No");
+        System.out.println(" Insurance?  (Y) Yes (N) No");
 
-        char c = getChar();
-
-        switch (c) {
+        switch (getChar()) {
             case 'y':
                 insureHand();
                 return;
@@ -385,9 +387,11 @@ public class Game {
         if (shoe.needToShuffle()) {
             shoe.buildNewShoe(deckType);
         }
+
         playerHands.clear();
         playerHands.add(new PlayerHand(this));
         currentHand = 0;
+
         dealerHand = new DealerHand(this);
 
         for (int i = 0; i < 2; i++) {
@@ -398,29 +402,38 @@ public class Game {
         if (dealerHand.upcardIsAce()) {
             drawHands();
             askInsurance();
+
             return;
         }
 
         if (playerHands.getFirst().isDone()) {
             dealerHand.setHideDownCard(false);
+
             payHands();
             drawHands();
             betOptions();
+
             return;
         }
 
         drawHands();
         playerHands.getFirst().getAction();
+
         saveGame();
     }
 
     public void drawHands() {
         clear();
-        StringBuilder output = new StringBuilder("\n Dealer:\n" + dealerHand + "\n");
+
+        StringBuilder output = new StringBuilder();
+
+        output.append("\n Dealer:\n" + dealerHand);
         output.append(String.format("\n Player $%.2f:\n", money / 100.0));
+
         for (PlayerHand playerHand : playerHands) {
-            output.append(playerHand).append("\n");
+            output.append(playerHand);
         }
+
         System.out.print(output);
     }
 
@@ -434,13 +447,17 @@ public class Game {
     public void loadGame() {
         try (BufferedReader reader = new BufferedReader(new FileReader(SAVE_FILE))) {
             String line = reader.readLine();
+
             if (line != null) {
                 String[] data = line.split("\\|");
-                this.numDecks = Integer.parseInt(data[0]);
-                this.money = Integer.parseInt(data[1]);
-                this.currentBet = Integer.parseInt(data[2]);
-                this.deckType = Integer.parseInt(data[3]);
-                this.faceType = Integer.parseInt(data[4]);
+
+                if (data.length == 5) {
+                    this.numDecks = Integer.parseInt(data[0]);
+                    this.money = Integer.parseInt(data[1]);
+                    this.currentBet = Integer.parseInt(data[2]);
+                    this.deckType = Integer.parseInt(data[3]);
+                    this.faceType = Integer.parseInt(data[4]);
+                }
             }
         } catch (IOException _) {
         }

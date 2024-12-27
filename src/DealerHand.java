@@ -32,6 +32,7 @@ public class DealerHand extends Hand {
         }
 
         out.append(" ⇒  ").append(getValue(CountMethod.SOFT));
+        out.append("\n");
         return out.toString();
     }
 

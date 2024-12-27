@@ -51,6 +51,7 @@ public class PlayerHand extends Hand {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder(" ");
+
         for (Card c : cards) {
             out.append(game.cardFace(c.value(), c.suit())).append(" ");
         }
@@ -79,7 +80,8 @@ public class PlayerHand extends Hand {
             out.append("Push!");
         }
 
-        out.append("\n");
+        out.append("\n\n");
+
         return out.toString();
     }
 
@@ -93,12 +95,10 @@ public class PlayerHand extends Hand {
 
             played = true;
 
-            if (!paid) {
-                if (isBusted()) {
-                    paid = true;
-                    status = HandStatus.LOST;
-                    game.setMoney(game.getMoney() - bet);
-                }
+            if (!paid && isBusted()) {
+                paid = true;
+                status = HandStatus.LOST;
+                game.setMoney(game.getMoney() - bet);
             }
 
             return true;
@@ -112,7 +112,7 @@ public class PlayerHand extends Hand {
             return false;
         }
 
-        if (game.getMoney() < game.allBets() + bet) {
+        if (!canCoverBet()) {
             return false;
         }
 
@@ -120,7 +120,7 @@ public class PlayerHand extends Hand {
     }
 
     public boolean canDbl() {
-        if (game.getMoney() < game.allBets() + bet) {
+        if (!canCoverBet()) {
             return false;
         }
 
@@ -135,20 +135,28 @@ public class PlayerHand extends Hand {
         return !played && !stood && getValue(CountMethod.HARD) != 21 && !isBlackjack() && !isBusted();
     }
 
+    private boolean canCoverBet() {
+        return game.getMoney() >= game.allBets() + bet;
+    }
+
     public void hit() {
         dealCard();
+
         if (isDone()) {
             process();
             return;
         }
+
         game.drawHands();
         game.getPlayerHands().get(game.getCurrentHand()).getAction();
     }
 
     public void dbl() {
         dealCard();
+
         played = true;
         bet *= 2;
+
         if (isDone()) {
             process();
         }
@@ -157,10 +165,12 @@ public class PlayerHand extends Hand {
     public void stand() {
         stood = true;
         played = true;
+
         if (game.moreHandsToPlay()) {
             game.playMoreHands();
             return;
         }
+
         game.playDealerHand();
         game.drawHands();
         game.betOptions();
@@ -171,6 +181,7 @@ public class PlayerHand extends Hand {
             game.playMoreHands();
             return;
         }
+
         game.playDealerHand();
         game.drawHands();
         game.betOptions();
@@ -178,6 +189,7 @@ public class PlayerHand extends Hand {
 
     public void getAction() {
         StringBuilder out = new StringBuilder(" ");
+
         if (canHit()) {
             out.append("(H) Hit  ");
         }
@@ -188,43 +200,35 @@ public class PlayerHand extends Hand {
             out.append("(P) Split  ");
         }
         if (canDbl()) {
-            out.append("(D) Double  ");
+            out.append("(D) Double");
         }
+
         System.out.println(out);
 
-        boolean decisionMade = false;
-        char c = game.getChar();
-
-        switch (c) {
+        switch (game.getChar()) {
             case 'h':
                 if (canHit()) {
-                    decisionMade = true;
                     hit();
                     return;
                 }
             case 's':
                 if (canStand()) {
-                    decisionMade = true;
                     stand();
                     return;
                 }
             case 'p':
                 if (canSplit()) {
-                    decisionMade = true;
                     game.splitCurrentHand();
                     return;
                 }
             case 'd':
                 if (canDbl()) {
-                    decisionMade = true;
                     dbl();
                     return;
                 }
         }
 
-        if (!decisionMade) {
-            game.drawHands();
-            getAction();
-        }
+        game.drawHands();
+        getAction();
     }
 }

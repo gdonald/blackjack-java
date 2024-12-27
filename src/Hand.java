@@ -50,16 +50,11 @@ public class Hand implements Cloneable {
     }
 
     public void dealCard() {
-        Shoe shoe = game.getShoe();
-        this.cards.add(shoe.getNextCard());
+        this.cards.add(game.getShoe().getNextCard());
     }
 
     public boolean isBlackjack() {
-        if (cards.size() != 2) {
-            return false;
-        }
-        return (cards.get(0).isAce() && cards.get(1).isTen()) ||
-                (cards.get(1).isAce() && cards.get(0).isTen());
+        return cards.size() == 2 && calculateValue(CountMethod.SOFT, false) == 21;
     }
 
     public void setPlayed(boolean played) {

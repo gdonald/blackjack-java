@@ -17,6 +17,7 @@ public class Shoe {
         if (cards.isEmpty()) {
             return true;
         }
+
         int totalCards = getTotalCards();
         int cardsDealt = totalCards - cards.size();
         double used = (cardsDealt / (double) totalCards) * 100.0;
@@ -73,10 +74,12 @@ public class Shoe {
                     if (cards.size() >= totalCards) {
                         break;
                     }
+
                     for (int value : values) {
                         if (cards.size() >= totalCards) {
                             break;
                         }
+
                         cards.add(new Card(value, suit));
                     }
                 }
@@ -86,6 +89,7 @@ public class Shoe {
 
     private void newRegular() {
         List<Integer> range = new ArrayList<>();
+
         for (int i = 0; i < 13; i++) {
             range.add(i);
         }
