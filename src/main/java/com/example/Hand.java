@@ -15,10 +15,14 @@ public class Hand implements Cloneable {
         this.played = false;
     }
 
+    protected Object superClone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     @Override
     public Hand clone() {
         try {
-            Hand cloned = (Hand) super.clone();
+            Hand cloned = (Hand) superClone();
             cloned.cards = new ArrayList<>(this.cards);
             return cloned;
         } catch (CloneNotSupportedException e) {

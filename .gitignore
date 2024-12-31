@@ -1,4 +1,5 @@
 .gradle/
+.DS_Store
 *.class
 blackjack.txt
 build/

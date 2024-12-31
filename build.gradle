@@ -2,6 +2,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'jacoco'
 }
 
 wrapper {
@@ -22,25 +23,11 @@ application {
     mainClass = 'com.example.Main'
 }
 
-task configureTerminal(type: Exec) {
-    commandLine 'stty', '-icanon', 'min', '1', 'time', '0'
-}
-
-task resetTerminal(type: Exec) {
-    commandLine 'stty', 'icanon', 'min', '1', 'time', '0'
-}
-
-run {
-    standardInput = System.in
-    dependsOn configureTerminal
-    doLast {
-        resetTerminal.execute()
-    }
-}
-
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    testImplementation 'org.mockito:mockito-core:5.10.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
 }
 
 test {
@@ -48,5 +35,13 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = true
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
     }
 }

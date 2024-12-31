@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.mockito.Mockito;
+
 public class CardTest {
 
   @Test
@@ -23,6 +25,19 @@ public class CardTest {
     assertEquals(original.value(), cloned.value());
     assertEquals(original.suit(), cloned.suit());
     assertNotSame(original, cloned);
+  }
+
+  @Test
+  @DisplayName("clone() should throw AssertionError if CloneNotSupportedException occurs")
+  void testCloneError() {
+    Card card = Mockito.spy(new Card(0, 0));
+    try {
+      Mockito.when(card.superClone()).thenThrow(new CloneNotSupportedException("Test exception"));
+    } catch (CloneNotSupportedException e) {
+      fail("Unexpected exception during test setup");
+    }
+
+    assertThrows(AssertionError.class, card::clone);
   }
 
   @Test
@@ -54,18 +69,18 @@ public class CardTest {
   @Test
   @DisplayName("FACES array contains correct card representations")
   void testFacesArray() {
-    assertEquals("A♠", Card.FACES[0][0]); // Ace of Spades
-    assertEquals("K♥", Card.FACES[12][1]); // King of Hearts
-    assertEquals("T♣", Card.FACES[9][2]); // Ten of Clubs
-    assertEquals("5♦", Card.FACES[4][3]); // Five of Diamonds
+    assertEquals("A♠", Card.FACES[0][0]);
+    assertEquals("K♥", Card.FACES[12][1]);
+    assertEquals("T♣", Card.FACES[9][2]);
+    assertEquals("5♦", Card.FACES[4][3]);
   }
 
   @Test
   @DisplayName("FACES2 array contains correct Unicode card representations")
   void testFaces2Array() {
-    assertEquals("🂡", Card.FACES2[0][0]); // Ace of Spades
-    assertEquals("🂾", Card.FACES2[12][1]); // King of Hearts
-    assertEquals("🃊", Card.FACES2[9][2]); // Ten of Clubs
-    assertEquals("🃕", Card.FACES2[4][3]); // Five of Diamonds
+    assertEquals("🂡", Card.FACES2[0][0]);
+    assertEquals("🂾", Card.FACES2[12][1]);
+    assertEquals("🃊", Card.FACES2[9][2]);
+    assertEquals("🃕", Card.FACES2[4][3]);
   }
 }

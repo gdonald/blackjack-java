@@ -1,11 +1,14 @@
 package com.example;
 
 public record Card(int value, int suit) implements Cloneable {
+    protected Object superClone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     @Override
     public Card clone() {
         try {
-            return (Card) super.clone();
+            return (Card) superClone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
