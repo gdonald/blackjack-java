@@ -1,3 +1,5 @@
+package com.example;
+
 public record Card(int value, int suit) implements Cloneable {
 
     @Override

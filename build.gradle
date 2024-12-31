@@ -1,0 +1,52 @@
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+wrapper {
+    gradleVersion = '8.12'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+application {
+    mainClass = 'com.example.Main'
+}
+
+task configureTerminal(type: Exec) {
+    commandLine 'stty', '-icanon', 'min', '1', 'time', '0'
+}
+
+task resetTerminal(type: Exec) {
+    commandLine 'stty', 'icanon', 'min', '1', 'time', '0'
+}
+
+run {
+    standardInput = System.in
+    dependsOn configureTerminal
+    doLast {
+        resetTerminal.execute()
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}

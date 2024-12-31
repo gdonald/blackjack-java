@@ -1,3 +1,5 @@
+package com.example;
+
 import java.util.ArrayList;
 
 public class Hand implements Cloneable {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-javac -d ./build $(find . -name "*.java")
+./gradlew build
 
 stty -icanon min 1 time 0
-java -cp ./build Main
+java -cp ./build/classes/java/main com.example.Main
 stty icanon min 1 time 0

@@ -1,3 +1,5 @@
+package com.example;
+
 public class DealerHand extends Hand {
     private boolean hideDownCard;
 
@@ -37,6 +39,6 @@ public class DealerHand extends Hand {
     }
 
     public boolean upcardIsAce() {
-        return cards.getFirst().isAce();
+        return cards.get(0).isAce();
     }
 }

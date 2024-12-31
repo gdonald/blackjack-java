@@ -1,3 +1,5 @@
+package com.example;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +34,7 @@ public class Shoe {
     }
 
     public Card getNextCard() {
-        return cards.isEmpty() ? null : cards.removeFirst();
+        return cards.isEmpty() ? null : cards.remove(0);
     }
 
     public void buildNewShoe(int deckType) {

@@ -1,3 +1,5 @@
+package com.example;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -395,7 +397,7 @@ public class Game {
         dealerHand = new DealerHand(this);
 
         for (int i = 0; i < 2; i++) {
-            playerHands.getFirst().dealCard();
+            playerHands.get(0).dealCard();
             dealerHand.dealCard();
         }
 
@@ -406,7 +408,7 @@ public class Game {
             return;
         }
 
-        if (playerHands.getFirst().isDone()) {
+        if (playerHands.get(0).isDone()) {
             dealerHand.setHideDownCard(false);
 
             payHands();
@@ -417,7 +419,7 @@ public class Game {
         }
 
         drawHands();
-        playerHands.getFirst().getAction();
+        playerHands.get(0).getAction();
 
         saveGame();
     }
@@ -440,7 +442,7 @@ public class Game {
     public void saveGame() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SAVE_FILE))) {
             writer.write(String.format("%d|%d|%d|%d|%d", numDecks, money, currentBet, deckType, faceType));
-        } catch (IOException _) {
+        } catch (IOException _exception) {
         }
     }
 
@@ -459,7 +461,7 @@ public class Game {
                     this.faceType = Integer.parseInt(data[4]);
                 }
             }
-        } catch (IOException _) {
+        } catch (IOException _exception) {
         }
 
         if (money < MIN_BET) {

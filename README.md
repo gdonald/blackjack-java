@@ -6,9 +6,13 @@ Console Blackjack written in Java
 
 ![Blackjack](https://raw.githubusercontent.com/gdonald/blackjack-java/master/ss1.png)
 
-### Run
+### Build and Run
 
     ./blackjack
+
+### Run Tests
+
+    ./gradlew clean test --rerun-tasks
 
 ### License
 

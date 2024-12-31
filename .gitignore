@@ -1,2 +1,4 @@
+.gradle/
 *.class
 blackjack.txt
+build/
