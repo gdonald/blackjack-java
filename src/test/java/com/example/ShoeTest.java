@@ -32,6 +32,7 @@ class ShoeTest {
 
     Mockito.when(mockGame.getNumDecks()).thenReturn(1);
     shoe.buildNewShoe(1);
+    assertFalse(shoe.needToShuffle());
 
     int cardsToRemove = (int) (52 * 0.81);
     for (int i = 0; i < cardsToRemove; i++) {
@@ -66,7 +67,7 @@ class ShoeTest {
       card = shoe.getNextCard();
     }
 
-    assertFalse(originalOrder.equals(newOrder));
+    assertNotEquals(originalOrder, newOrder);
   }
 
   @Test
@@ -98,25 +99,36 @@ class ShoeTest {
     }
 
     switch (deckType) {
-      case 2 ->
+      case 2 -> {
         assertTrue(cards.stream().allMatch(Card::isAce));
-      case 3 ->
+        assertEquals(52, cards.stream().count());
+      }
+      case 3 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 10));
-      case 4 ->
+        assertEquals(52, cards.stream().count());
+      }
+      case 4 -> {
         assertTrue(cards.stream().allMatch(c -> c.isAce() || c.value() == 10));
-      case 5 ->
+        assertEquals(52, cards.stream().count());
+      }
+      case 5 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 6));
-      case 6 ->
+        assertEquals(52, cards.stream().count());
+      }
+      case 6 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 7));
+        assertEquals(52, cards.stream().count());
+      }
       default ->
         assertEquals(52, cards.stream().distinct().count());
     }
   }
 
-  @Test
-  @DisplayName("buildNewShoe should honor number of decks")
-  void testBuildNewShoeMultipleDecks() {
-    Mockito.when(mockGame.getNumDecks()).thenReturn(2);
+  @ParameterizedTest
+  @ValueSource(ints = { 1, 2, 3, 4, 5, 6, 7, 8 })
+  @DisplayName("buildNewShoe should honor different numbers of decks")
+  void testBuildNewShoeMultipleDecks(int numDecks) {
+    Mockito.when(mockGame.getNumDecks()).thenReturn(numDecks);
     shoe.buildNewShoe(1);
 
     int cardCount = 0;
@@ -126,6 +138,9 @@ class ShoeTest {
       card = shoe.getNextCard();
     }
 
-    assertEquals(104, cardCount);
+    int expectedCards = numDecks * 52;
+    assertEquals(expectedCards, cardCount,
+        String.format("Shoe with %d deck(s) should contain %d cards",
+            numDecks, expectedCards));
   }
 }

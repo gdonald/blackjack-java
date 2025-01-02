@@ -14,6 +14,8 @@ Console Blackjack written in Java
 
     ./gradlew clean test --rerun-tasks
 
+    open build/reports/jacoco/test/html/index.html
+
 ### License
 
 [![GitHub](https://img.shields.io/github/license/gdonald/blackjack-java?color=aa0000)](https://github.com/gdonald/blackjack-java/blob/main/LICENSE)

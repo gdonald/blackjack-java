@@ -78,10 +78,6 @@ public class Shoe {
                     }
 
                     for (int value : values) {
-                        if (cards.size() >= totalCards) {
-                            break;
-                        }
-
                         cards.add(new Card(value, suit));
                     }
                 }
