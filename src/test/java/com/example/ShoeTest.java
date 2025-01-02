@@ -53,18 +53,14 @@ class ShoeTest {
 
     shoe.buildNewShoe(1);
 
-    card = shoe.getNextCard();
-    while (card != null) {
+    while ((card = shoe.getNextCard()) != null) {
       originalOrder.add(card);
-      card = shoe.getNextCard();
     }
 
     shoe.buildNewShoe(1);
 
-    card = shoe.getNextCard();
-    while (card != null) {
+    while ((card = shoe.getNextCard()) != null) {
       newOrder.add(card);
-      card = shoe.getNextCard();
     }
 
     assertNotEquals(originalOrder, newOrder);
