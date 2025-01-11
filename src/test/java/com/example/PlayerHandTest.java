@@ -3,6 +3,7 @@ package com.example;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -158,5 +159,83 @@ class PlayerHandTest {
     playerHand.getAction();
 
     assertEquals(" (H) Hit  (S) Stand  (P) Split  (D) Double\n", outputStream.toString());
+  }
+
+  @Test
+  @DisplayName("setBet should set the bet value")
+  void testSetBet() {
+    playerHand.setBet(100);
+    assertEquals(100, playerHand.getBet());
+  }
+
+  @Nested
+  @DisplayName("dbl Tests")
+  class DoubleTests {
+    @Test
+    @DisplayName("dbl should deal card, double bet, and mark as played")
+    void testDbl() {
+      doNothing().when(playerHand).dealCard();
+      doNothing().when(playerHand).process();
+      playerHand.setBet(1000);
+      playerHand.dbl();
+
+      assertEquals(2000, playerHand.getBet());
+      assertTrue(playerHand.played);
+    }
+
+    @Test
+    @DisplayName("double should process hand if done")
+    void testDblProcessesWhenDone() {
+      doNothing().when(playerHand).dealCard();
+      doReturn(true).when(playerHand).isDone();
+      doNothing().when(playerHand).process();
+      playerHand.dbl();
+
+      verify(playerHand).process();
+    }
+
+    @Test
+    @DisplayName("double should not process hand if not done")
+    void testDblDoesNotProcessWhenNotDone() {
+      doNothing().when(playerHand).dealCard();
+      doReturn(false).when(playerHand).isDone();
+      playerHand.dbl();
+
+      verify(playerHand, never()).process();
+    }
+  }
+
+  @Nested
+  @DisplayName("Hit Tests")
+  class HitTests {
+    @Test
+    @DisplayName("hit should process and not continue when done")
+    void testHitProcessesWhenDone() {
+      doNothing().when(playerHand).dealCard();
+      doReturn(true).when(playerHand).isDone();
+      doNothing().when(playerHand).process();
+
+      playerHand.hit();
+
+      verify(game, never()).drawHands();
+      verify(game, never()).getPlayerHands();
+    }
+
+    @Test
+    @DisplayName("hit should continue to next action when not done")
+    void testHitContinuesWhenNotDone() {
+      ArrayList<PlayerHand> playerHands = new ArrayList<>();
+      playerHands.add(playerHand);
+      when(game.getPlayerHands()).thenReturn(playerHands);
+      when(game.getCurrentHand()).thenReturn(0);
+      doNothing().when(playerHand).dealCard();
+      doReturn(false).when(playerHand).isDone();
+      doNothing().when(playerHand).getAction();
+
+      playerHand.hit();
+
+      verify(game).drawHands();
+      verify(playerHand).getAction();
+    }
   }
 }
