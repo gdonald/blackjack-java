@@ -12,7 +12,7 @@ Console Blackjack written in Java
 
 ### Run Tests
 
-    ./gradlew clean test --rerun-tasks
+    ./gradlew clean test jacocoTestReport --rerun-tasks
 
     open build/reports/jacoco/test/html/index.html
 
