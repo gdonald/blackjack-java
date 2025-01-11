@@ -238,4 +238,44 @@ class PlayerHandTest {
       verify(playerHand).getAction();
     }
   }
+
+  @Nested
+  @DisplayName("Stand Tests")
+  class StandTests {
+    @AfterEach
+    void tearDown() {
+      assertTrue(playerHand.stood);
+      assertTrue(playerHand.played);
+    }
+
+    @Test
+    @DisplayName("stand should mark hand as stood and played")
+    void testStandMarksHandStatus() {
+      doNothing().when(game).playMoreHands();
+      when(game.moreHandsToPlay()).thenReturn(true);
+
+      playerHand.stand();
+
+      verify(game).playMoreHands();
+      verify(game, never()).playDealerHand();
+      verify(game, never()).drawHands();
+      verify(game, never()).betOptions();
+    }
+
+    @Test
+    @DisplayName("stand and do not play more hands unless required")
+    void testStandPlaysMoreHandsWhenAvailable() {
+      doNothing().when(game).playDealerHand();
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+      when(game.moreHandsToPlay()).thenReturn(false);
+
+      playerHand.stand();
+
+      verify(game, never()).playMoreHands();
+      verify(game).playDealerHand();
+      verify(game).drawHands();
+      verify(game).betOptions();
+    }
+  }
 }
