@@ -73,62 +73,118 @@ class PlayerHandTest {
     assertTrue(playerHand.isBusted());
   }
 
-  @Test
-  @DisplayName("toString should format playerHand correctly for normal  playerHand")
-  void testToStringNormalHand() {
-    ArrayList<PlayerHand> playerHands = new ArrayList<>();
-    playerHands.add(playerHand);
-    when(game.getPlayerHands()).thenReturn(playerHands);
-    when(game.getCurrentHand()).thenReturn(0);
+  @Nested
+  @DisplayName("toString Tests")
+  class ToStringTests {
+    private ArrayList<PlayerHand> playerHands = new ArrayList<>();
 
-    when(shoe.getNextCard()).thenReturn(
-        new Card(9, 0),
-        new Card(10, 3));
+    @BeforeEach
+    void setUp() {
+      when(game.cardFace(any(Integer.class), any(Integer.class))).thenCallRealMethod();
 
-    playerHand.dealCard();
-    playerHand.dealCard();
+      playerHands.add(playerHand);
+      when(game.getPlayerHands()).thenReturn(playerHands);
+      when(game.getCurrentHand()).thenReturn(0);
+    }
 
-    when(game.cardFace(any(Integer.class), any(Integer.class))).thenCallRealMethod();
+    @Test
+    @DisplayName("toString should format playerHand correctly for normal  playerHand")
+    void testToStringNormalHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(9, 0),
+          new Card(10, 3));
 
-    String result = playerHand.toString();
-    assertTrue(result.contains("T♠"));
-    assertTrue(result.contains("J♦"));
-    assertTrue(result.contains("$5.00"));
-    assertTrue(result.contains("⇐"));
-  }
+      playerHand.dealCard();
+      playerHand.dealCard();
 
-  @Test
-  @DisplayName("toString should show correct status messages")
-  void testToStringStatusMessages() {
-    ArrayList<PlayerHand> playerHands = new ArrayList<>();
-    playerHands.add(playerHand);
-    when(game.getPlayerHands()).thenReturn(playerHands);
-    when(game.getCurrentHand()).thenReturn(0);
+      String result = playerHand.toString();
+      assertTrue(result.contains("T♠"));
+      assertTrue(result.contains("J♦"));
+      assertTrue(result.contains("$5.00"));
+      assertTrue(result.contains("⇐"));
+    }
 
-    when(shoe.getNextCard()).thenReturn(
-        new Card(8, 0),
-        new Card(8, 1),
-        new Card(8, 2));
+    @Test
+    @DisplayName("toString should show correct status messages")
+    void testToStringStatusMessages() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(8, 1),
+          new Card(8, 2));
 
-    playerHand.dealCard();
-    playerHand.dealCard();
-    playerHand.setStatus(HandStatus.WON);
+      playerHand.dealCard();
+      playerHand.dealCard();
+      playerHand.setStatus(HandStatus.WON);
 
-    String result = playerHand.toString();
-    assertTrue(result.contains("+$5.00"));
-    assertTrue(result.contains("Win!"));
+      String result = playerHand.toString();
+      assertTrue(result.contains("+$5.00"));
+      assertTrue(result.contains("Win!"));
 
-    playerHand.dealCard();
-    playerHand.setStatus(HandStatus.LOST);
+      playerHand.setStatus(HandStatus.LOST);
 
-    result = playerHand.toString();
-    assertTrue(result.contains("-$5.00"));
-    assertTrue(result.contains("Busted!"));
+      result = playerHand.toString();
+      assertTrue(result.contains("-$5.00"));
+      assertTrue(result.contains("Lose!"));
 
-    playerHand.setStatus(HandStatus.PUSH);
+      playerHand.dealCard();
+      result = playerHand.toString();
+      assertTrue(result.contains("Busted!"));
 
-    result = playerHand.toString();
-    assertTrue(result.contains("Push!"));
+      playerHand.setStatus(HandStatus.PUSH);
+
+      result = playerHand.toString();
+      assertTrue(result.contains("Push!"));
+    }
+
+    @Test
+    @DisplayName("toString should show correct Blackjack message")
+    void testToStringBlackjackMessage() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(0, 0),
+          new Card(9, 1));
+
+      playerHand.dealCard();
+      playerHand.dealCard();
+      playerHand.setStatus(HandStatus.WON);
+
+      String result = playerHand.toString();
+      assertTrue(result.contains("Blackjack!"));
+    }
+
+    @Test
+    @DisplayName("toString should not show current hand indicator for a played hand")
+    void testToStringPlayedIsNotCurrentHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(9, 0),
+          new Card(10, 3));
+
+      playerHand.dealCard();
+      playerHand.dealCard();
+
+      PlayerHand otherHand = spy(new PlayerHand(game));
+      playerHands.add(otherHand);
+      when(game.getPlayerHands()).thenReturn(playerHands);
+      when(game.getCurrentHand()).thenReturn(1);
+
+      String result = playerHand.toString();
+      assertFalse(result.contains("⇐"));
+    }
+
+    @Test
+    @DisplayName("toString should not show current hand indicator for a non-current hand")
+    void testToStringIsNotCurrentHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(9, 0),
+          new Card(10, 3));
+
+      playerHand.dealCard();
+      playerHand.dealCard();
+
+      playerHand.played = true;
+
+      String result = playerHand.toString();
+      assertFalse(result.contains("⇐"));
+    }
   }
 
   @Test
