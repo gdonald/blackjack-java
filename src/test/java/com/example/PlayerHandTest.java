@@ -404,4 +404,30 @@ class PlayerHandTest {
       verify(game).betOptions();
     }
   }
+
+  @Nested
+  @DisplayName("process Tests")
+  class ProcessTests {
+    @Test
+    @DisplayName("when more hands to play plays more hands")
+    void testPlaysMoreHands() {
+      when(game.moreHandsToPlay()).thenReturn(true);
+      doNothing().when(game).playMoreHands();
+      playerHand.process();
+
+      verify(game).playMoreHands();
+    }
+
+    @Test
+    @DisplayName("when no more hands to play does not play more hands")
+    void testNoMoreHandsToPlay() {
+      doNothing().when(game).playDealerHand();
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+      when(game.moreHandsToPlay()).thenReturn(false);
+      playerHand.process();
+
+      verify(game, never()).playMoreHands();
+    }
+  }
 }
