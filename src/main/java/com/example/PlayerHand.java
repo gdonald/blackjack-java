@@ -129,14 +129,6 @@ public class PlayerHand extends Hand {
         return !stood && cards.size() == 2 && !isBusted() && !isBlackjack();
     }
 
-    public boolean canStand() {
-        return !stood && !isBusted() && !isBlackjack();
-    }
-
-    public boolean canHit() {
-        return !played && !stood && getValue(CountMethod.HARD) != 21 && !isBlackjack() && !isBusted();
-    }
-
     private boolean canCoverBet() {
         return game.getMoney() >= game.allBets() + bet;
     }
@@ -191,13 +183,8 @@ public class PlayerHand extends Hand {
 
     public void getAction() {
         StringBuilder out = new StringBuilder(" ");
+        out.append("(H) Hit  (S) Stand  ");
 
-        if (canHit()) {
-            out.append("(H) Hit  ");
-        }
-        if (canStand()) {
-            out.append("(S) Stand  ");
-        }
         if (canSplit()) {
             out.append("(P) Split  ");
         }
@@ -209,15 +196,11 @@ public class PlayerHand extends Hand {
 
         switch (game.getChar()) {
             case 'h':
-                if (canHit()) {
-                    hit();
-                    return;
-                }
+                hit();
+                return;
             case 's':
-                if (canStand()) {
-                    stand();
-                    return;
-                }
+                stand();
+                return;
             case 'p':
                 if (canSplit()) {
                     game.splitCurrentHand();

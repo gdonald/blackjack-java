@@ -49,8 +49,7 @@ class PlayerHandTest {
   @Test
   @DisplayName("Clone should create deep copy with shared game reference")
   void testClone() {
-    playerHand.dealCard();
-    playerHand.dealCard();
+    playerHand.dealCards(2);
     PlayerHand cloned = playerHand.clone();
 
     assertEquals(2, cloned.getCards().size());
@@ -94,8 +93,7 @@ class PlayerHandTest {
           new Card(9, 0),
           new Card(10, 3));
 
-      playerHand.dealCard();
-      playerHand.dealCard();
+      playerHand.dealCards(2);
 
       String result = playerHand.toString();
       assertTrue(result.contains("T♠"));
@@ -112,8 +110,7 @@ class PlayerHandTest {
           new Card(8, 1),
           new Card(8, 2));
 
-      playerHand.dealCard();
-      playerHand.dealCard();
+      playerHand.dealCards(2);
       playerHand.setStatus(HandStatus.WON);
 
       String result = playerHand.toString();
@@ -143,8 +140,7 @@ class PlayerHandTest {
           new Card(0, 0),
           new Card(9, 1));
 
-      playerHand.dealCard();
-      playerHand.dealCard();
+      playerHand.dealCards(2);
       playerHand.setStatus(HandStatus.WON);
 
       String result = playerHand.toString();
@@ -158,8 +154,7 @@ class PlayerHandTest {
           new Card(9, 0),
           new Card(10, 3));
 
-      playerHand.dealCard();
-      playerHand.dealCard();
+      playerHand.dealCards(2);
 
       PlayerHand otherHand = spy(new PlayerHand(game));
       playerHands.add(otherHand);
@@ -177,8 +172,7 @@ class PlayerHandTest {
           new Card(9, 0),
           new Card(10, 3));
 
-      playerHand.dealCard();
-      playerHand.dealCard();
+      playerHand.dealCards(2);
 
       playerHand.played = true;
 
@@ -201,20 +195,96 @@ class PlayerHandTest {
     assertFalse(hand.isPaid());
   }
 
-  @Test
-  @DisplayName("Menu should show all options when all are available")
-  public void testMenuShowsAllOptionsWhenAllAvailable() {
-    when(playerHand.canHit()).thenReturn(true);
-    when(playerHand.canStand()).thenReturn(true);
-    when(playerHand.canSplit()).thenReturn(true);
-    when(playerHand.canDbl()).thenReturn(true);
+  @Nested
+  @DisplayName("getAction Tests")
+  class GetActionTests {
+    @Test
+    @DisplayName("show all options")
+    public void testMenuShowsAllOptionsWhenAllAvailable() {
+      when(playerHand.canSplit()).thenReturn(true);
+      when(playerHand.canDbl()).thenReturn(true);
 
-    doNothing().when(playerHand).hit();
-    when(game.getChar()).thenReturn('h');
+      doNothing().when(playerHand).hit();
+      when(game.getChar()).thenReturn('h');
 
-    playerHand.getAction();
+      playerHand.getAction();
 
-    assertEquals(" (H) Hit  (S) Stand  (P) Split  (D) Double\n", outputStream.toString());
+      assertEquals(" (H) Hit  (S) Stand  (P) Split  (D) Double\n", outputStream.toString());
+    }
+
+    @Test
+    @DisplayName("cannot dbl or split")
+    public void testMenuShowsCannotDblOrSplit() {
+      when(playerHand.canSplit()).thenReturn(false);
+      when(playerHand.canDbl()).thenReturn(false);
+
+      doNothing().when(playerHand).stand();
+      when(game.getChar()).thenReturn('s');
+
+      playerHand.getAction();
+      assertEquals(" (H) Hit  (S) Stand  \n", outputStream.toString());
+
+      verify(playerHand).stand();
+    }
+
+    @Test
+    @DisplayName("hand can be split")
+    public void testHandCanBeSplit() {
+      when(playerHand.canSplit()).thenReturn(true);
+      doNothing().when(game).splitCurrentHand();
+      when(game.getChar()).thenReturn('p');
+
+      playerHand.getAction();
+
+      verify(game).splitCurrentHand();
+    }
+
+    @Test
+    @DisplayName("try to split hand that cannot split")
+    public void testTryToSplitHandThatCannotSplit() {
+      doNothing().when(game).splitCurrentHand();
+      doNothing().when(playerHand).stand();
+      when(game.getChar()).thenReturn('p', 's');
+
+      playerHand.getAction();
+
+      verify(game, never()).splitCurrentHand();
+    }
+
+    @Test
+    @DisplayName("hand can dbl")
+    public void testHandCanDbl() {
+      when(playerHand.canDbl()).thenReturn(true);
+      doNothing().when(playerHand).dbl();
+      when(game.getChar()).thenReturn('d');
+
+      playerHand.getAction();
+
+      verify(playerHand).dbl();
+    }
+
+    @Test
+    @DisplayName("try to dbl hand that cannot dbl")
+    public void testTryToSplitHandThatCannotDbl() {
+      doNothing().when(playerHand).dbl();
+      doNothing().when(playerHand).stand();
+      when(game.getChar()).thenReturn('d', 's');
+
+      playerHand.getAction();
+
+      verify(playerHand, never()).dbl();
+    }
+
+    @Test
+    @DisplayName("handle invalid input")
+    public void testHandleInvalidInput() {
+      doNothing().when(playerHand).stand();
+      when(game.getChar()).thenReturn('x', 's');
+
+      playerHand.getAction();
+
+      verify(playerHand).stand();
+    }
   }
 
   @Test

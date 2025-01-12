@@ -59,6 +59,12 @@ public class Hand implements Cloneable {
         this.cards.add(game.getShoe().getNextCard());
     }
 
+    public void dealCards(int numCards) {
+        for (int i = 0; i < numCards; i++) {
+            dealCard();
+        }
+    }
+
     public boolean isBlackjack() {
         return cards.size() == 2 && calculateValue(CountMethod.SOFT, false) == 21;
     }
