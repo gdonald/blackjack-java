@@ -92,7 +92,7 @@ public class Game {
     Card splitCard1 = currentPlayerHand.cards.get(1).clone();
     Card splitCard0 = currentPlayerHand.cards.get(0).clone();
 
-    splitHand.cards = new ArrayList<Card>();
+    splitHand.cards = new ArrayList<>();
     splitHand.cards.add(splitCard1);
     currentPlayerHand.cards = new ArrayList<>();
     currentPlayerHand.cards.add(splitCard0);
@@ -439,7 +439,7 @@ public class Game {
   public void saveGame() {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(SAVE_FILE))) {
       writer.write(String.format("%d|%d|%d|%d|%d", numDecks, money, currentBet, deckType, faceType));
-    } catch (IOException _exception) {
+    } catch (IOException ignored) {
     }
   }
 
@@ -458,7 +458,7 @@ public class Game {
           this.faceType = Integer.parseInt(data[4]);
         }
       }
-    } catch (IOException _exception) {
+    } catch (IOException ignored) {
     }
 
     if (money < MIN_BET) {
@@ -471,7 +471,7 @@ public class Game {
     try {
       return (char) reader.read();
     } catch (IOException e) {
-      e.printStackTrace();
+      System.out.println("Error reading input: " + e.getMessage());
       System.exit(1);
     }
 
