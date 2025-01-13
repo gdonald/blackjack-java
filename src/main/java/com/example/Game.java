@@ -33,6 +33,10 @@ public class Game {
     loadGame();
   }
 
+  public static void run() {
+    (new Game()).loop();
+  }
+
   public int getNumDecks() {
     return numDecks;
   }
@@ -139,7 +143,7 @@ public class Game {
 
   public void getNewBet() {
     drawHands();
-    System.out.printf(" (1) $5  (2) $10  (3) $25  (4) $100");
+    System.out.print(" (1) $5  (2) $10  (3) $25  (4) $100");
 
     switch (getChar()) {
       case '1':
@@ -422,7 +426,7 @@ public class Game {
 
     StringBuilder output = new StringBuilder();
 
-    output.append("\n Dealer:\n" + dealerHand);
+    output.append("\n Dealer:\n").append(dealerHand);
     output.append(String.format("\n Player $%.2f:\n", money / 100.0));
 
     for (PlayerHand playerHand : playerHands) {
@@ -479,7 +483,7 @@ public class Game {
     System.out.flush();
   }
 
-  public void run() {
+  public void loop() {
     while (!quitting) {
       dealNewHand();
     }
