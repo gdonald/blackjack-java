@@ -584,4 +584,88 @@ class PlayerHandTest {
       assertFalse(playerHand.canSplit());
     }
   }
+
+  @Nested
+  @DisplayName("isDone Tests")
+  class IsDoneTests {
+    @BeforeEach
+    void setUp() {
+      game.setMoney(10000);
+    }
+
+    @Test
+    @DisplayName("isDone returns true when hand is stood")
+    void testIsDoneReturnsTrueWhenStood() {
+      playerHand.stood = true;
+
+      assertTrue(playerHand.isDone());
+    }
+
+    @Test
+    @DisplayName("isDone returns true when hand is blackjack")
+    void testReturnsTrueWhenBlackjack() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(0, 0),
+          new Card(9, 0));
+      playerHand.dealCards(2);
+
+      assertTrue(playerHand.isDone());
+    }
+
+    @Test
+    @DisplayName("isDone returns true when hand is 21 using a soft count")
+    void testIsDoneReturnsTrueWhenBustedSoft() {
+      when(playerHand.getValue(CountMethod.SOFT)).thenReturn(21);
+
+      assertTrue(playerHand.isDone());
+    }
+
+    @Test
+    @DisplayName("isDone returns true when hand is 21 using a hard count")
+    void testIsDoneReturnsTrueWhenBustedHard() {
+      when(playerHand.getValue(CountMethod.HARD)).thenReturn(21);
+
+      assertTrue(playerHand.isDone());
+    }
+
+    @Test
+    @DisplayName("isDone returns true when hand is busted")
+    void testReturnsTrueWhenBusted() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(8, 1),
+          new Card(8, 2));
+      playerHand.dealCards(3);
+
+      assertTrue(playerHand.isDone());
+      assertEquals(9500, game.getMoney());
+    }
+
+    @Test
+    @DisplayName("isDone returns false when hand is ready to play")
+    void testReturnsTrueWhenNotPlayed() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(4, 0),
+          new Card(5, 1));
+      playerHand.dealCards(2);
+
+      assertFalse(playerHand.isDone());
+      assertEquals(10000, game.getMoney());
+    }
+
+    @Test
+    @DisplayName("isDone skips busted played hand")
+    void testSkipsBustedPlayedHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(8, 1),
+          new Card(8, 2));
+      playerHand.dealCards(3);
+
+      playerHand.setPaid(true);
+
+      assertTrue(playerHand.isDone());
+      assertEquals(10000, game.getMoney());
+    }
+  }
 }

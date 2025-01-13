@@ -92,21 +92,17 @@ public class PlayerHand extends Hand {
   }
 
   public boolean isDone() {
-    if (played || stood || isBlackjack() || isBusted() ||
-        getValue(CountMethod.SOFT) == 21 || getValue(CountMethod.HARD) == 21) {
+    played = played || stood || isBlackjack() || isBusted() ||
+        getValue(CountMethod.SOFT) == 21 ||
+        getValue(CountMethod.HARD) == 21;
 
-      played = true;
-
-      if (!paid && isBusted()) {
-        paid = true;
-        status = HandStatus.LOST;
-        game.setMoney(game.getMoney() - bet);
-      }
-
-      return true;
+    if (played && !paid && isBusted()) {
+      paid = true;
+      status = HandStatus.LOST;
+      game.setMoney(game.getMoney() - bet);
     }
 
-    return false;
+    return played;
   }
 
   public boolean canSplit() {
