@@ -496,4 +496,92 @@ class PlayerHandTest {
       assertFalse(playerHand.canDbl());
     }
   }
+
+  @Nested
+  @DisplayName("canSplit Tests")
+  class CanSplitTests {
+    @Test
+    @DisplayName("canSplit returns false when player cannot cover bet")
+    void testCanSplitCannotCoverBet() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(2, 0),
+          new Card(2, 0));
+      playerHand.dealCards(2);
+
+      game.setMoney(0);
+
+      assertFalse(playerHand.canSplit());
+    }
+
+    @Test
+    @DisplayName("canSplit returns false when hand is not a pair")
+    void testCanSplitReturnsFalse() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(2, 0),
+          new Card(3, 0));
+      playerHand.dealCards(2);
+
+      assertFalse(playerHand.canSplit());
+    }
+
+    @Test
+    @DisplayName("canSplit returns false when already stood")
+    void testCanSplitFalseWhenAlreadyStood() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(2, 0),
+          new Card(2, 1));
+      playerHand.dealCards(2);
+
+      when(game.moreHandsToPlay()).thenReturn(false);
+      doNothing().when(game).playDealerHand();
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+
+      playerHand.stand();
+
+      assertFalse(playerHand.canSplit());
+    }
+
+    @Test
+    @DisplayName("canSplit returns true when all conditions are met")
+    void testCanSplitReturnsTrue() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(2, 0),
+          new Card(2, 1));
+      playerHand.dealCards(2);
+
+      assertTrue(playerHand.canSplit());
+    }
+
+    @Test
+    @DisplayName("canSplit returns false when too many hands")
+    void testCanSplitReturnsFalseWithTooManyHands() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(2, 0),
+          new Card(2, 1));
+      playerHand.dealCards(2);
+
+      for (int i = 0; i < Game.MAX_PLAYER_HANDS; i++) {
+        game.getPlayerHands().add(new PlayerHand(game));
+      }
+
+      assertFalse(playerHand.canSplit());
+    }
+  }
 }

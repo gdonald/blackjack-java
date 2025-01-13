@@ -110,15 +110,17 @@ public class PlayerHand extends Hand {
   }
 
   public boolean canSplit() {
-    if (stood || game.getPlayerHands().size() >= Game.MAX_PLAYER_HANDS) {
+    if (stood) {
+      return false;
+    } else if (cards.size() != 2) {
+      return false;
+    } else if (game.getPlayerHands().size() >= Game.MAX_PLAYER_HANDS) {
+      return false;
+    } else if (cannotCoverBet()) {
       return false;
     }
 
-    if (!canCoverBet()) {
-      return false;
-    }
-
-    return cards.size() == 2 && cards.get(0).value() == cards.get(1).value();
+    return cards.get(0).value() == cards.get(1).value();
   }
 
   public boolean canDbl() {
@@ -126,15 +128,15 @@ public class PlayerHand extends Hand {
       return false;
     } else if (cards.size() != 2) {
       return false;
-    } else if (!canCoverBet()) {
+    } else if (cannotCoverBet()) {
       return false;
     }
 
     return !isBlackjack();
   }
 
-  private boolean canCoverBet() {
-    return game.getMoney() >= game.allBets() + bet;
+  private boolean cannotCoverBet() {
+    return game.getMoney() < game.allBets() + bet;
   }
 
   public void hit() {
