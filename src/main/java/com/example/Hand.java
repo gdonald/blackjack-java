@@ -3,73 +3,73 @@ package com.example;
 import java.util.ArrayList;
 
 public class Hand implements Cloneable {
-    protected Game game;
-    protected ArrayList<Card> cards;
-    protected boolean stood;
-    protected boolean played;
+  protected Game game;
+  protected ArrayList<Card> cards;
+  protected boolean stood;
+  protected boolean played;
 
-    public Hand(Game game) {
-        this.game = game;
-        this.cards = new ArrayList<>();
-        this.stood = false;
-        this.played = false;
+  public Hand(Game game) {
+    this.game = game;
+    this.cards = new ArrayList<>();
+    this.stood = false;
+    this.played = false;
+  }
+
+  protected Object superClone() throws CloneNotSupportedException {
+    return super.clone();
+  }
+
+  @Override
+  public Hand clone() {
+    try {
+      Hand cloned = (Hand) superClone();
+      cloned.cards = new ArrayList<>(this.cards);
+      return cloned;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
+  }
+
+  protected int calculateValue(CountMethod countMethod, boolean skipHiddenCard) {
+    int total = 0;
+
+    for (int i = 0; i < cards.size(); i++) {
+      if (skipHiddenCard && i == 1) {
+        continue;
+      }
+
+      int cardValue = cards.get(i).value() + 1;
+      int v = (cardValue > 9) ? 10 : cardValue;
+
+      if (countMethod == CountMethod.SOFT && v == 1 && total < 11) {
+        v = 11;
+      }
+
+      total += v;
     }
 
-    protected Object superClone() throws CloneNotSupportedException {
-        return super.clone();
+    if (countMethod == CountMethod.SOFT && total > 21) {
+      return calculateValue(CountMethod.HARD, skipHiddenCard);
     }
 
-    @Override
-    public Hand clone() {
-        try {
-            Hand cloned = (Hand) superClone();
-            cloned.cards = new ArrayList<>(this.cards);
-            return cloned;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+    return total;
+  }
+
+  public void dealCard() {
+    this.cards.add(game.getShoe().getNextCard());
+  }
+
+  public void dealCards(int numCards) {
+    for (int i = 0; i < numCards; i++) {
+      dealCard();
     }
+  }
 
-    protected int calculateValue(CountMethod countMethod, boolean skipHiddenCard) {
-        int total = 0;
+  public boolean isBlackjack() {
+    return cards.size() == 2 && calculateValue(CountMethod.SOFT, false) == 21;
+  }
 
-        for (int i = 0; i < cards.size(); i++) {
-            if (skipHiddenCard && i == 1) {
-                continue;
-            }
-
-            int cardValue = cards.get(i).value() + 1;
-            int v = (cardValue > 9) ? 10 : cardValue;
-
-            if (countMethod == CountMethod.SOFT && v == 1 && total < 11) {
-                v = 11;
-            }
-
-            total += v;
-        }
-
-        if (countMethod == CountMethod.SOFT && total > 21) {
-            return calculateValue(CountMethod.HARD, skipHiddenCard);
-        }
-
-        return total;
-    }
-
-    public void dealCard() {
-        this.cards.add(game.getShoe().getNextCard());
-    }
-
-    public void dealCards(int numCards) {
-        for (int i = 0; i < numCards; i++) {
-            dealCard();
-        }
-    }
-
-    public boolean isBlackjack() {
-        return cards.size() == 2 && calculateValue(CountMethod.SOFT, false) == 21;
-    }
-
-    public void setPlayed(boolean played) {
-        this.played = played;
-    }
+  public void setPlayed(boolean played) {
+    this.played = played;
+  }
 }

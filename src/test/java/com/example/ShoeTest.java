@@ -97,23 +97,23 @@ class ShoeTest {
     switch (deckType) {
       case 2 -> {
         assertTrue(cards.stream().allMatch(Card::isAce));
-        assertEquals(52, cards.stream().count());
+        assertEquals(52, cards.size());
       }
       case 3 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 10));
-        assertEquals(52, cards.stream().count());
+        assertEquals(52, cards.size());
       }
       case 4 -> {
         assertTrue(cards.stream().allMatch(c -> c.isAce() || c.value() == 10));
-        assertEquals(52, cards.stream().count());
+        assertEquals(52, cards.size());
       }
       case 5 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 6));
-        assertEquals(52, cards.stream().count());
+        assertEquals(52, cards.size());
       }
       case 6 -> {
         assertTrue(cards.stream().allMatch(c -> c.value() == 7));
-        assertEquals(52, cards.stream().count());
+        assertEquals(52, cards.size());
       }
       default ->
         assertEquals(52, cards.stream().distinct().count());

@@ -1,8 +1,8 @@
 package com.example;
 
 public enum HandStatus {
-    UNKNOWN,
-    WON,
-    LOST,
-    PUSH
+  UNKNOWN,
+  WON,
+  LOST,
+  PUSH
 }

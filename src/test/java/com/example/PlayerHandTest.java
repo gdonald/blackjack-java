@@ -1,17 +1,14 @@
 package com.example;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class PlayerHandTest {
   private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -72,10 +69,31 @@ class PlayerHandTest {
     assertTrue(playerHand.isBusted());
   }
 
+  @Test
+  @DisplayName("setPaid should correctly update paid status")
+  void testSetPaid() {
+    PlayerHand hand = new PlayerHand(game);
+
+    assertFalse(hand.isPaid());
+
+    hand.setPaid(true);
+    assertTrue(hand.isPaid());
+
+    hand.setPaid(false);
+    assertFalse(hand.isPaid());
+  }
+
+  @Test
+  @DisplayName("setBet should set the bet value")
+  void testSetBet() {
+    playerHand.setBet(100);
+    assertEquals(100, playerHand.getBet());
+  }
+
   @Nested
   @DisplayName("toString Tests")
   class ToStringTests {
-    private ArrayList<PlayerHand> playerHands = new ArrayList<>();
+    private final ArrayList<PlayerHand> playerHands = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
@@ -181,20 +199,6 @@ class PlayerHandTest {
     }
   }
 
-  @Test
-  @DisplayName("setPaid should correctly update paid status")
-  void testSetPaid() {
-    PlayerHand hand = new PlayerHand(game);
-
-    assertFalse(hand.isPaid());
-
-    hand.setPaid(true);
-    assertTrue(hand.isPaid());
-
-    hand.setPaid(false);
-    assertFalse(hand.isPaid());
-  }
-
   @Nested
   @DisplayName("getAction Tests")
   class GetActionTests {
@@ -285,13 +289,6 @@ class PlayerHandTest {
 
       verify(playerHand).stand();
     }
-  }
-
-  @Test
-  @DisplayName("setBet should set the bet value")
-  void testSetBet() {
-    playerHand.setBet(100);
-    assertEquals(100, playerHand.getBet());
   }
 
   @Nested
@@ -438,8 +435,8 @@ class PlayerHandTest {
     @DisplayName("canDbl returns false when player cannot cover bet")
     void testCanDblCannotCoverBet() {
       when(shoe.getNextCard()).thenReturn(
-              new Card(2, 0),
-              new Card(3, 0));
+          new Card(2, 0),
+          new Card(3, 0));
       playerHand.dealCards(2);
 
       game.setMoney(0);
@@ -455,8 +452,8 @@ class PlayerHandTest {
       playerHand.setBet(500);
 
       when(shoe.getNextCard()).thenReturn(
-              new Card(2, 0),
-              new Card(3, 0));
+          new Card(2, 0),
+          new Card(3, 0));
       playerHand.dealCards(2);
 
       assertTrue(playerHand.canDbl());
@@ -470,8 +467,8 @@ class PlayerHandTest {
       playerHand.setBet(500);
 
       when(shoe.getNextCard()).thenReturn(
-              new Card(2, 0),
-              new Card(3, 0));
+          new Card(2, 0),
+          new Card(3, 0));
       playerHand.dealCards(2);
 
       when(game.moreHandsToPlay()).thenReturn(false);
@@ -492,8 +489,8 @@ class PlayerHandTest {
       playerHand.setBet(500);
 
       when(shoe.getNextCard()).thenReturn(
-              new Card(0, 0),
-              new Card(9, 0));
+          new Card(0, 0),
+          new Card(9, 0));
       playerHand.dealCards(2);
 
       assertFalse(playerHand.canDbl());
