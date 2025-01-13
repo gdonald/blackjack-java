@@ -3,3 +3,4 @@
 *.class
 blackjack.txt
 build/
+.idea

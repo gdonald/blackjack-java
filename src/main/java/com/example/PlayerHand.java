@@ -122,11 +122,15 @@ public class PlayerHand extends Hand {
     }
 
     public boolean canDbl() {
-        if (!canCoverBet()) {
+        if (stood) {
+            return false;
+        } else if (cards.size() != 2) {
+            return false;
+        } else if (!canCoverBet()) {
             return false;
         }
 
-        return !stood && cards.size() == 2 && !isBusted() && !isBlackjack();
+        return !isBlackjack();
     }
 
     private boolean canCoverBet() {

@@ -430,4 +430,73 @@ class PlayerHandTest {
       verify(game, never()).playMoreHands();
     }
   }
+
+  @Nested
+  @DisplayName("canDbl Tests")
+  class CanDblTests {
+    @Test
+    @DisplayName("canDbl returns false when player cannot cover bet")
+    void testCanDblCannotCoverBet() {
+      when(shoe.getNextCard()).thenReturn(
+              new Card(2, 0),
+              new Card(3, 0));
+      playerHand.dealCards(2);
+
+      game.setMoney(0);
+
+      assertFalse(playerHand.canDbl());
+    }
+
+    @Test
+    @DisplayName("canDbl should return true when all conditions are met")
+    void testCanDblReturnsTrue() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+              new Card(2, 0),
+              new Card(3, 0));
+      playerHand.dealCards(2);
+
+      assertTrue(playerHand.canDbl());
+    }
+
+    @Test
+    @DisplayName("canDbl returns false when already stood")
+    void testCanDblFalseWhenAlreadyStood() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+              new Card(2, 0),
+              new Card(3, 0));
+      playerHand.dealCards(2);
+
+      when(game.moreHandsToPlay()).thenReturn(false);
+      doNothing().when(game).playDealerHand();
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+
+      playerHand.stand();
+
+      assertFalse(playerHand.canDbl());
+    }
+
+    @Test
+    @DisplayName("canDbl returns false when hand is blackjack")
+    void testCanDblReturnsFalseWhenBlackjack() {
+      when(game.getMoney()).thenReturn(10000);
+      when(game.allBets()).thenReturn(1000);
+      playerHand.setBet(500);
+
+      when(shoe.getNextCard()).thenReturn(
+              new Card(0, 0),
+              new Card(9, 0));
+      playerHand.dealCards(2);
+
+      assertFalse(playerHand.canDbl());
+    }
+  }
 }
