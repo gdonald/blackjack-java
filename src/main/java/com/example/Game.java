@@ -37,6 +37,10 @@ public class Game {
     (new Game()).loop();
   }
 
+  protected BufferedReader getReader() {
+    return reader;
+  }
+
   public int getNumDecks() {
     return numDecks;
   }
@@ -444,8 +448,8 @@ public class Game {
   }
 
   public void loadGame() {
-    try (BufferedReader reader = new BufferedReader(new FileReader(SAVE_FILE))) {
-      String line = reader.readLine();
+    try (BufferedReader lineReader = new BufferedReader(new FileReader(SAVE_FILE))) {
+      String line = lineReader.readLine();
 
       if (line != null) {
         String[] data = line.split("\\|");
@@ -469,13 +473,10 @@ public class Game {
 
   public char getChar() {
     try {
-      return (char) reader.read();
+      return (char) getReader().read();
     } catch (IOException e) {
-      System.out.println("Error reading input: " + e.getMessage());
-      System.exit(1);
+      throw new RuntimeException("Error reading input: " + e.getMessage(), e);
     }
-
-    return 0;
   }
 
   public void clear() {

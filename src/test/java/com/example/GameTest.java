@@ -2,12 +2,11 @@ package com.example;
 
 import org.junit.jupiter.api.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +27,17 @@ public class GameTest {
     System.setOut(originalOut);
   }
 
+  @SuppressWarnings("SameParameterValue")
+  private void setField(Object target, String fieldName, Object value) {
+    try {
+      Field field = target.getClass().getDeclaredField(fieldName);
+      field.setAccessible(true);
+      field.set(target, value);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Test
   @DisplayName("clear tests")
   void testClear() {
@@ -36,19 +46,41 @@ public class GameTest {
   }
 
   @Nested
-  @DisplayName("loop Tests")
-  class LoopTests {
-    @SuppressWarnings("SameParameterValue")
-    private void setField(Object target, String fieldName, Object value) {
-      try {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+  @DisplayName("getChar Tests")
+  class GetCharTests {
+    @Test
+    @DisplayName("getChar should return the first character of the input")
+    void testGetChar() throws IOException {
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+      BufferedReader reader = spy(bufferedReader);
+
+      when(game.getReader()).thenReturn(reader);
+      when(reader.read()).thenReturn(97);
+
+      assertEquals('a', game.getChar());
     }
 
+    @Test
+    @DisplayName("getChar can throw an IOException")
+    void testGetCharIOException() throws IOException {
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+      BufferedReader reader = spy(bufferedReader);
+
+      when(game.getReader()).thenReturn(reader);
+      when(reader.read()).thenThrow(new IOException("Read failed"));
+
+      RuntimeException exception = assertThrows(RuntimeException.class,
+          () -> game.getChar());
+
+      assertEquals("Error reading input: Read failed", exception.getMessage());
+      assertInstanceOf(IOException.class, exception.getCause());
+      verify(reader).read();
+    }
+  }
+
+  @Nested
+  @DisplayName("loop Tests")
+  class LoopTests {
     @Test
     @DisplayName("loop should run when not quitting")
     void testLoop() {
