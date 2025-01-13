@@ -441,28 +441,29 @@ public class Game {
   }
 
   public void saveGame() {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(SAVE_FILE))) {
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(SAVE_FILE));
       writer.write(String.format("%d|%d|%d|%d|%d", numDecks, money, currentBet, deckType, faceType));
+      writer.close();
     } catch (IOException ignored) {
     }
   }
 
   public void loadGame() {
-    try (BufferedReader lineReader = new BufferedReader(new FileReader(SAVE_FILE))) {
+    try {
+      BufferedReader lineReader = new BufferedReader(new FileReader(SAVE_FILE));
       String line = lineReader.readLine();
+      String[] data = line.split("\\|");
+      lineReader.close();
 
-      if (line != null) {
-        String[] data = line.split("\\|");
-
-        if (data.length == 5) {
-          this.numDecks = Integer.parseInt(data[0]);
-          this.money = Integer.parseInt(data[1]);
-          this.currentBet = Integer.parseInt(data[2]);
-          this.deckType = Integer.parseInt(data[3]);
-          this.faceType = Integer.parseInt(data[4]);
-        }
+      if (data.length == 5) {
+        this.numDecks = Integer.parseInt(data[0]);
+        this.money = Integer.parseInt(data[1]);
+        this.currentBet = Integer.parseInt(data[2]);
+        this.deckType = Integer.parseInt(data[3]);
+        this.faceType = Integer.parseInt(data[4]);
       }
-    } catch (IOException ignored) {
+    } catch (IOException | NullPointerException ignored) {
     }
 
     if (money < MIN_BET) {
