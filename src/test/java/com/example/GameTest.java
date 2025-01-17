@@ -1,6 +1,7 @@
 package com.example;
 
 import org.junit.jupiter.api.*;
+import org.mockito.MockedConstruction;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -55,6 +56,18 @@ public class GameTest {
   void testClear() {
     game.clear();
     assertEquals("\033[H\033[2J", outputStream.toString());
+  }
+
+  @Nested
+  @DisplayName("game runner tests")
+  class GameRunnerTests {
+    @Test
+    void testRunInvokesLoop() throws Exception {
+      try (MockedConstruction<Game> mocked = mockConstruction(Game.class)) {
+        Game.run();
+        verify(mocked.constructed().get(0)).loop();
+      }
+    }
   }
 
   @Nested
@@ -147,6 +160,20 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("moreHandsToPlay Tests")
+  class MoreHandsToPlayTests {
+    @Test
+    @DisplayName("returns true when there are more split hands left to play")
+    public void testMoreHandsToPlay() {
+      game.getPlayerHands().add(new PlayerHand(game));
+      assertFalse(game.moreHandsToPlay());
+
+      game.getPlayerHands().add(new PlayerHand(game));
+      assertTrue(game.moreHandsToPlay());
+    }
+  }
+
+  @Nested
   @DisplayName("loadGame Tests")
   class LoadGameTests {
     @BeforeEach
@@ -189,7 +216,7 @@ public class GameTest {
 
     @Test
     @DisplayName("loadGame should not throw an exception if the save file does not exist")
-    public void testLoadGameWithNoSaveFile() throws IOException {
+    public void testLoadGameWithNoSaveFile() {
       game.loadGame();
 
       assertEquals(1, game.getNumDecks());
