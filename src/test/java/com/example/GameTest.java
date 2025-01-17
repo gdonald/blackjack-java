@@ -59,6 +59,30 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("cardFace tests")
+  class CardFaceTests {
+    @Test
+    void testCardFaceRegularFaces() {
+      when(game.getFaceType()).thenReturn(1);
+
+      assertEquals("A♠", game.cardFace(0, 0));
+      assertEquals("K♦", game.cardFace(12, 3));
+      assertEquals("7♥", game.cardFace(6, 1));
+      assertEquals("??", game.cardFace(13, 0));
+    }
+
+    @Test
+    void testCardFaceFaces2() {
+      when(game.getFaceType()).thenReturn(2);
+
+      assertEquals("🂡", game.cardFace(0, 0));
+      assertEquals("🃞", game.cardFace(12, 3));
+      assertEquals("🂷", game.cardFace(6, 1));
+      assertEquals("🂠", game.cardFace(13, 0));
+    }
+  }
+
+  @Nested
   @DisplayName("game runner tests")
   class GameRunnerTests {
     @Test

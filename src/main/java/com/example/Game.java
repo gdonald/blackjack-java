@@ -45,11 +45,12 @@ public class Game {
     return numDecks;
   }
 
+  public int getFaceType() {
+    return faceType;
+  }
+
   public String cardFace(int value, int suit) {
-    if (faceType == 2) {
-      return Card.FACES2[value][suit];
-    }
-    return Card.FACES[value][suit];
+    return (getFaceType() == 2 ? Card.FACES2 : Card.FACES)[value][suit];
   }
 
   public int getCurrentHand() {
