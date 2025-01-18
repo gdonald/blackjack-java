@@ -388,8 +388,8 @@ public class Game {
   }
 
   public void dealNewHand() {
-    if (shoe.needToShuffle()) {
-      shoe.buildNewShoe(deckType);
+    if (getShoe().needToShuffle()) {
+      getShoe().buildNewShoe(deckType);
     }
 
     playerHands.clear();

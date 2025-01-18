@@ -17,16 +17,30 @@ public class GameTest {
   private final PrintStream originalOut = System.out;
 
   private Game game;
+  private Shoe shoe;
+
+  private void deleteSaveFile() {
+    File file = new File(SAVE_FILE);
+    if (file.exists()) {
+      assertTrue(file.delete());
+    }
+  }
 
   @BeforeEach
   void setUp() {
+    deleteSaveFile();
     System.setOut(new PrintStream(outputStream));
+
     game = spy(new Game());
+    shoe = spy(new Shoe(game));
+    when(game.getCurrentBet()).thenReturn(500);
+    when(game.getShoe()).thenReturn(shoe);
   }
 
   @AfterEach
   public void tearDown() {
     System.setOut(originalOut);
+    deleteSaveFile();
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -56,6 +70,86 @@ public class GameTest {
   void testClear() {
     game.clear();
     assertEquals("\033[H\033[2J", outputStream.toString());
+  }
+
+  @Nested
+  @DisplayName("dealNewHand tests")
+  class DealNewHandTests {
+    @Test
+    void testDealNewHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(7, 0),
+          new Card(8, 0),
+          new Card(8, 0));
+
+      when(game.getChar()).thenReturn('s', 'q');
+
+      game.dealNewHand();
+      verify(game, times(2)).saveGame();
+    }
+
+    @Test
+    void testDealNewHandNoNeedToShuffle() {
+      when(shoe.needToShuffle()).thenReturn(false);
+      when(game.getChar()).thenReturn('s', 'q');
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(7, 0),
+          new Card(8, 0),
+          new Card(8, 0));
+
+      when(game.getChar()).thenReturn('s', 'q');
+
+      game.dealNewHand();
+      verify(shoe, never()).buildNewShoe(any(int.class));
+    }
+
+    @Test
+    void testDealerUpcardIsAceAskInsurance() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(8, 0),
+          new Card(0, 0),
+          new Card(8, 0),
+          new Card(7, 0));
+
+      when(game.getChar()).thenReturn('n', 's', 'q');
+
+      game.dealNewHand();
+      verify(game).askInsurance();
+    }
+
+    @Test
+    void testPlayerHandIsDone() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(0, 0),
+          new Card(3, 0),
+          new Card(9, 0),
+          new Card(5, 0));
+
+      when(game.getChar()).thenReturn('q');
+
+      game.dealNewHand();
+      verify(game).payHands();
+    }
+  }
+
+  @Nested
+  @DisplayName("drawHands tests")
+  class DrawHandsTests {
+    @Test
+    void testDrawHands() {
+      game.getPlayerHands().add(new PlayerHand(game));
+      PlayerHand playerHand = spy(game.getPlayerHands().get(0));
+      doNothing().when(playerHand).getAction();
+
+      game.drawHands();
+
+      String output = outputStream.toString();
+      assertTrue(output.contains("Dealer:"));
+      assertTrue(output.contains("Player $100.00:"));
+    }
   }
 
   @Nested
@@ -200,23 +294,6 @@ public class GameTest {
   @Nested
   @DisplayName("loadGame Tests")
   class LoadGameTests {
-    @BeforeEach
-    public void setUp() {
-      deleteSaveFile();
-    }
-
-    @AfterEach
-    public void tearDown() {
-      deleteSaveFile();
-    }
-
-    private void deleteSaveFile() {
-      File file = new File(SAVE_FILE);
-      if (file.exists()) {
-        assertTrue(file.delete());
-      }
-    }
-
     private void createSaveFile(String content) throws IOException {
       try (FileWriter writer = new FileWriter(SAVE_FILE)) {
         writer.write(content);
