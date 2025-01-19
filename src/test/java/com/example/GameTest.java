@@ -189,6 +189,55 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("noInsurance tests")
+  class NoInsuranceTests {
+    @Test
+    void testNoInsurance() {
+      PlayerHand playerHand = spy(new PlayerHand(game));
+      game.getPlayerHands().add(playerHand);
+
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+      when(dealerHand.isBlackjack()).thenReturn(false);
+
+      when(game.getChar()).thenReturn('s', 'q');
+      doNothing().when(game).playDealerHand();
+
+      game.noInsurance();
+      verify(playerHand).getAction();
+    }
+
+    @Test
+    void testNoInsuranceDealerHasBlackjack() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+      when(dealerHand.isBlackjack()).thenReturn(true);
+
+      when(game.getChar()).thenReturn('q');
+
+      game.noInsurance();
+      verify(game).payHands();
+    }
+
+    @Test
+    void testNoInsuranceDealerDoesNotHaveBlackjack() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+      when(dealerHand.isBlackjack()).thenReturn(false);
+      doNothing().when(game).playDealerHand();
+
+      PlayerHand playerHand = spy(new PlayerHand(game));
+      game.getPlayerHands().add(playerHand);
+      when(playerHand.isDone()).thenReturn(true);
+
+      when(game.getChar()).thenReturn('q');
+
+      game.noInsurance();
+      verify(game).playDealerHand();
+    }
+  }
+
+  @Nested
   @DisplayName("askInsurance Tests")
   class AskInsuranceTests {
     @Test

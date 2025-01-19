@@ -358,7 +358,7 @@ public class Game {
       return;
     }
 
-    PlayerHand playerHand = playerHands.get(currentHand);
+    PlayerHand playerHand = playerHands.get(0);
     if (playerHand.isDone()) {
       playDealerHand();
       drawHands();
