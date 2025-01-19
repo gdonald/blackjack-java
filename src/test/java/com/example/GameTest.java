@@ -180,11 +180,45 @@ public class GameTest {
   @DisplayName("game runner tests")
   class GameRunnerTests {
     @Test
-    void testRunInvokesLoop() throws Exception {
+    void testRunInvokesLoop() {
       try (MockedConstruction<Game> mocked = mockConstruction(Game.class)) {
         Game.run();
         verify(mocked.constructed().get(0)).loop();
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("askInsurance Tests")
+  class AskInsuranceTests {
+    @Test
+    @DisplayName("askInsurance should insure hand if the player wants insurance")
+    void testAskInsuranceYes() {
+      when(game.getChar()).thenReturn('y');
+      doNothing().when(game).insureHand();
+
+      game.askInsurance();
+      verify(game).insureHand();
+    }
+
+    @Test
+    @DisplayName("askInsurance should not insure hand if the player does not want insurance")
+    void testAskInsuranceNo() {
+      when(game.getChar()).thenReturn('n');
+      doNothing().when(game).noInsurance();
+
+      game.askInsurance();
+      verify(game).noInsurance();
+    }
+
+    @Test
+    @DisplayName("askInsurance should ask again if the player does not enter y or n")
+    void testAskInsuranceInvalidResponse() {
+      when(game.getChar()).thenReturn('x', 'n');
+      doNothing().when(game).noInsurance();
+
+      game.askInsurance();
+      verify(game).noInsurance();
     }
   }
 
