@@ -316,7 +316,7 @@ public class Game {
 
   public boolean needToPlayDealerHand() {
     return playerHands.stream()
-        .anyMatch(hand -> !(hand.isBusted() || hand.isBlackjack()));
+        .anyMatch(playerHand -> !(playerHand.isBusted() || playerHand.isBlackjack()));
   }
 
   public void playDealerHand() {

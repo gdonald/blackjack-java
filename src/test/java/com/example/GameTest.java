@@ -57,9 +57,17 @@ public class GameTest {
   @SuppressWarnings("SameParameterValue")
   private <T> T getField(Object target, String fieldName, Class<T> fieldType) {
     try {
-      Field field = target.getClass().getDeclaredField(fieldName);
-      field.setAccessible(true);
-      return fieldType.cast(field.get(target));
+      Class<?> currentClass = target.getClass();
+      while (currentClass != null) {
+        try {
+          Field field = currentClass.getDeclaredField(fieldName);
+          field.setAccessible(true);
+          return fieldType.cast(field.get(target));
+        } catch (NoSuchFieldException ignored) {
+          currentClass = currentClass.getSuperclass();
+        }
+      }
+      throw new NoSuchFieldException("Field '" + fieldName + "' not found in class hierarchy of " + target.getClass());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -234,6 +242,69 @@ public class GameTest {
 
       game.noInsurance();
       verify(game).playDealerHand();
+    }
+  }
+
+  @Nested
+  @DisplayName("playDealerHand tests")
+  class PlayDealerHandTests {
+    @Test
+    void testPlayDealerHand() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+      game.playDealerHand();
+
+      assertTrue(getField(dealerHand, "played", Boolean.class));
+      verify(game).payHands();
+    }
+
+    @Test
+    void testPlayDealerHandDealerHasBlackjack() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+      when(dealerHand.isBlackjack()).thenReturn(true);
+      game.playDealerHand();
+
+      assertFalse(getField(dealerHand, "hideDownCard", Boolean.class));
+      verify(game).payHands();
+    }
+
+    @Test
+    void testPlayDealerHandWithCardsDealtSoftCount() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+
+      when(game.needToPlayDealerHand()).thenReturn(true);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(4, 0),
+          new Card(4, 0),
+          new Card(4, 0),
+          new Card(1, 0));
+
+      game.playDealerHand();
+
+      assertTrue(getField(dealerHand, "played", Boolean.class));
+      verify(game).payHands();
+    }
+
+    @Test
+    void testPlayDealerHandWithCardsDealtHardCount() {
+      DealerHand dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+
+      when(game.needToPlayDealerHand()).thenReturn(true);
+
+      when(shoe.getNextCard()).thenReturn(
+          new Card(4, 0),
+          new Card(4, 0),
+          new Card(4, 0),
+          new Card(2, 0));
+
+      game.playDealerHand();
+
+      assertTrue(getField(dealerHand, "played", Boolean.class));
+      verify(game).payHands();
     }
   }
 
