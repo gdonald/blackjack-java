@@ -197,6 +197,40 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("needToPlayDealerHand tests")
+  class NeedToPlayDealerHandTests {
+    PlayerHand playerHand;
+
+    @BeforeEach
+    void setUp() {
+      playerHand = spy(new PlayerHand(game));
+      game.getPlayerHands().add(playerHand);
+    }
+
+    @Test
+    void testNeedToPlayDealerHand() {
+      when(playerHand.isBlackjack()).thenReturn(false);
+      when(playerHand.isBusted()).thenReturn(false);
+
+      assertTrue(game.needToPlayDealerHand());
+    }
+
+    @Test
+    void testNeedToPlayDealerHandPlayerBusted() {
+      when(playerHand.isBusted()).thenReturn(true);
+
+      assertFalse(game.needToPlayDealerHand());
+    }
+
+    @Test
+    void testNeedToPlayDealerHandPlayerHasBlackjack() {
+      when(playerHand.isBlackjack()).thenReturn(true);
+
+      assertFalse(game.needToPlayDealerHand());
+    }
+  }
+
+  @Nested
   @DisplayName("noInsurance tests")
   class NoInsuranceTests {
     @Test
