@@ -197,9 +197,51 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("payHands tests")
+  class PayHandsTests {
+    private DealerHand dealerHand;
+    private PlayerHand playerHand;
+
+    @BeforeEach
+    void setUp() {
+      doNothing().when(game).saveGame();
+
+      dealerHand = spy(new DealerHand(game));
+      setField(game, "dealerHand", dealerHand);
+
+      playerHand = spy(new PlayerHand(game));
+      game.getPlayerHands().add(playerHand);
+    }
+
+    @Test
+    void testPayHands() {
+      game.payHands();
+      verify(game).saveGame();
+    }
+
+    @Test
+    void testPayHandsPlayerHandAlreadyPaid() {
+      when(playerHand.isPaid()).thenReturn(true);
+
+      game.payHands();
+      verify(playerHand, never()).setPaid(true);
+      verify(game).saveGame();
+    }
+
+    @Test
+    void testPayHandsWithABustedDealerHand() {
+      when(dealerHand.isBusted()).thenReturn(true);
+
+      game.payHands();
+      assertEquals(HandStatus.WON, getField(playerHand, "status", HandStatus.class));
+      verify(game).saveGame();
+    }
+  }
+
+  @Nested
   @DisplayName("needToPlayDealerHand tests")
   class NeedToPlayDealerHandTests {
-    PlayerHand playerHand;
+    private PlayerHand playerHand;
 
     @BeforeEach
     void setUp() {
