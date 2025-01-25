@@ -33,7 +33,6 @@ public class GameTest {
 
     game = spy(new Game());
     shoe = spy(new Shoe(game));
-    when(game.getCurrentBet()).thenReturn(500);
     when(game.getShoe()).thenReturn(shoe);
   }
 
@@ -78,6 +77,60 @@ public class GameTest {
   void testClear() {
     game.clear();
     assertEquals("\033[H\033[2J", outputStream.toString());
+  }
+
+  @Nested
+  @DisplayName("normalizeBet tests")
+  class GetNewBetTests {
+    @Test
+    void getNewBet2() {
+      when(game.getChar()).thenReturn('2', 'q');
+      doNothing().when(game).dealNewHand();
+      game.getNewBet();
+
+      assertEquals(1000, game.getCurrentBet());
+    }
+
+    @Test
+    void getNewBet3() {
+      when(game.getChar()).thenReturn('3', 'q');
+      doNothing().when(game).dealNewHand();
+      game.getNewBet();
+
+      assertEquals(2500, game.getCurrentBet());
+    }
+
+    @Test
+    void getNewBet4() {
+      when(game.getChar()).thenReturn('4', 'q');
+      doNothing().when(game).dealNewHand();
+      game.getNewBet();
+
+      assertEquals(10000, game.getCurrentBet());
+    }
+
+    @Test
+    void getNewBetInvalidInput() {
+      when(game.getChar()).thenReturn('5', '4', 'q');
+      doNothing().when(game).dealNewHand();
+      game.getNewBet();
+
+      assertEquals(10000, game.getCurrentBet());
+    }
+  }
+
+  @Nested
+  @DisplayName("normalizeBet tests")
+  class NormalizeBetTests {
+    @Test
+    void testNormalizeBet() {
+      setField(game, "money", 100);
+      when(game.getChar()).thenReturn('1', 'q');
+      doNothing().when(game).dealNewHand();
+      game.getNewBet();
+
+      assertEquals(100, game.getCurrentBet());
+    }
   }
 
   @Nested

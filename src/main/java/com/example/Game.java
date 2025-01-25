@@ -7,7 +7,6 @@ public class Game {
   public static final int MAX_PLAYER_HANDS = 7;
   private static final String SAVE_FILE = "blackjack.txt";
   private static final int MIN_BET = 500;
-  private static final int MAX_BET = 10000000;
   private final BufferedReader reader;
   private final Shoe shoe;
   private final ArrayList<PlayerHand> playerHands;
@@ -135,14 +134,8 @@ public class Game {
   }
 
   private void normalizeBet() {
-    if (currentBet < MIN_BET) {
-      currentBet = MIN_BET;
-    } else if (currentBet > MAX_BET) {
-      currentBet = MAX_BET;
-    }
-
-    if (currentBet > money) {
-      currentBet = money;
+    if (this.currentBet > money) {
+      this.currentBet = money;
     }
   }
 
@@ -153,15 +146,18 @@ public class Game {
     switch (getChar()) {
       case '1':
         currentBet = 500;
-        return;
+        break;
       case '2':
         currentBet = 1000;
-        return;
+        break;
       case '3':
         currentBet = 2500;
-        return;
+        break;
       case '4':
         currentBet = 10000;
+        break;
+      default:
+        getNewBet();
         return;
     }
 
