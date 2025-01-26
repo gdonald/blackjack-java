@@ -80,6 +80,46 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("playMoreHands tests")
+  class PlayMoreHandsTests {
+    private PlayerHand playerHand2;
+
+    @BeforeEach
+    void setUp() {
+      shoe.buildNewShoe(1);
+
+      PlayerHand playerHand = spy(new PlayerHand(game));
+      playerHand2 = spy(new PlayerHand(game));
+
+      playerHand.dealCards(2);
+      game.getPlayerHands().add(playerHand);
+
+      playerHand2.dealCards(1);
+      game.getPlayerHands().add(playerHand2);
+    }
+
+    @Test
+    void testPlayMoreHands() {
+      when(playerHand2.isDone()).thenReturn(false);
+      doNothing().when(playerHand2).getAction();
+
+      game.playMoreHands();
+      verify(game).drawHands();
+      verify(playerHand2).getAction();
+    }
+
+    @Test
+    void testPlayMoreHandsIsDone() {
+      when(playerHand2.isDone()).thenReturn(true);
+      doNothing().when(playerHand2).process();
+
+      game.playMoreHands();
+      verify(game, never()).drawHands();
+      verify(playerHand2).process();
+    }
+  }
+
+  @Nested
   @DisplayName("betOptions tests")
   class BetOptionsTests {
     @Test
