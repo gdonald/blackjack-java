@@ -80,6 +80,60 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("gameOptions tests")
+  class GameOptionsTests {
+    @Test
+    void testGameOptionsNewNumDecks() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).getNewNumDecks();
+      when(game.getChar()).thenReturn('n');
+
+      game.gameOptions();
+      verify(game).getNewNumDecks();
+    }
+
+    @Test
+    void testGameOptionsNewDeckType() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).getNewDeckType();
+      when(game.getChar()).thenReturn('t');
+
+      game.gameOptions();
+      verify(game).getNewDeckType();
+    }
+
+    @Test
+    void testGameOptionsNewFaceType() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).getNewFaceType();
+      when(game.getChar()).thenReturn('f');
+
+      game.gameOptions();
+      verify(game).getNewFaceType();
+    }
+
+    @Test
+    void testGameOptionsGoBack() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+      when(game.getChar()).thenReturn('b');
+
+      game.gameOptions();
+      verify(game).betOptions();
+    }
+
+    @Test
+    void testGameOptionsInvalidInput() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).getNewNumDecks();
+      when(game.getChar()).thenReturn('x', 'n');
+
+      game.gameOptions();
+      verify(game, times(2)).gameOptions();
+    }
+  }
+
+  @Nested
   @DisplayName("playMoreHands tests")
   class PlayMoreHandsTests {
     private PlayerHand playerHand2;
