@@ -80,6 +80,57 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("betOptions tests")
+  class BetOptionsTests {
+    @Test
+    void testBetOptions() {
+      when(game.getChar()).thenReturn('q');
+
+      game.betOptions();
+      verify(game).clear();
+      verify(game, never()).drawHands();
+    }
+
+    @Test
+    void testBetOptionsDealNewHand() {
+      doNothing().when(game).dealNewHand();
+      when(game.getChar()).thenReturn('d');
+
+      game.betOptions();
+      verify(game, never()).drawHands();
+    }
+
+    @Test
+    void testBetOptionsGetNewBet() {
+      doNothing().when(game).getNewBet();
+      when(game.getChar()).thenReturn('b');
+
+      game.betOptions();
+      verify(game).getNewBet();
+      verify(game, never()).drawHands();
+    }
+
+    @Test
+    void testBetOptionsGameOptions() {
+      doNothing().when(game).gameOptions();
+      when(game.getChar()).thenReturn('o');
+
+      game.betOptions();
+      verify(game).gameOptions();
+      verify(game, never()).drawHands();
+    }
+
+    @Test
+    void testBetOptionsInvalidInput() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('x', 'q');
+
+      game.betOptions();
+      verify(game, times(2)).betOptions();
+    }
+  }
+
+  @Nested
   @DisplayName("normalizeBet tests")
   class GetNewBetTests {
     @Test
