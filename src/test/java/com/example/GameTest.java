@@ -80,6 +80,49 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("getNewDeckType tests")
+  class GetNewDeckTypeTest {
+    @Test
+    void testGetNewDeckType() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('1');
+
+      game.getNewDeckType();
+      verify(game).saveGame();
+    }
+
+    @Test
+    void testGetNewDeckTypeDeckType2() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('2');
+
+      game.getNewDeckType();
+      verify(game).saveGame();
+      assertEquals(8, game.getNumDecks());
+    }
+
+    @Test
+    void testGetNewDeckTypeInvalidInputLow() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('#', '1');
+
+      game.getNewDeckType();
+      verify(game).saveGame();
+      verify(game, times(2)).getNewDeckType();
+    }
+
+    @Test
+    void testGetNewDeckTypeInvalidInputHigh() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('8', '1');
+
+      game.getNewDeckType();
+      verify(game).saveGame();
+      verify(game, times(2)).getNewDeckType();
+    }
+  }
+
+  @Nested
   @DisplayName("getNewFaceType tests")
   class GetNewFaceTypeTest {
     @Test
