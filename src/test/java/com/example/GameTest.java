@@ -80,6 +80,29 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("getNewFaceType tests")
+  class GetNewFaceTypeTest {
+    @Test
+    void testGetNewFaceType() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('1');
+
+      game.getNewFaceType();
+      verify(game).saveGame();
+    }
+
+    @Test
+    void testGetNewFaceTypeInvalidInput() {
+      doNothing().when(game).drawHands();
+      when(game.getChar()).thenReturn('x', '2');
+
+      game.getNewFaceType();
+      verify(game, times(2)).getNewFaceType();
+      verify(game).saveGame();
+    }
+  }
+
+  @Nested
   @DisplayName("insureHand tests")
   class InsureHandsTest {
     @Test
