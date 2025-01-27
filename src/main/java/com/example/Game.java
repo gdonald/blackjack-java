@@ -266,7 +266,7 @@ public class Game {
   }
 
   public void insureHand() {
-    PlayerHand playerHand = playerHands.get(currentHand);
+    PlayerHand playerHand = getPlayerHands().get(currentHand);
     playerHand.setBet(playerHand.getBet() / 2);
     playerHand.setPlayed(true);
     playerHand.setPaid(true);

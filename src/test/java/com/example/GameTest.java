@@ -80,6 +80,22 @@ public class GameTest {
   }
 
   @Nested
+  @DisplayName("insureHand tests")
+  class InsureHandsTest {
+    @Test
+    void testInsureHands() {
+      doNothing().when(game).drawHands();
+      doNothing().when(game).betOptions();
+
+      PlayerHand playerHand = spy(new PlayerHand(game));
+      game.getPlayerHands().add(playerHand);
+
+      game.insureHand();
+      assertEquals(9750, game.getMoney());
+    }
+  }
+
+  @Nested
   @DisplayName("gameOptions tests")
   class GameOptionsTests {
     @Test
