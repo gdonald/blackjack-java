@@ -34,10 +34,10 @@ public record Card(int value, int suit) implements Cloneable {
       {"🂠", "", "", ""}
   };
 
-  protected Object superClone() throws CloneNotSupportedException {
+  Object superClone() throws CloneNotSupportedException {
     return super.clone();
   }
-
+  
   @Override
   public Card clone() {
     try {
