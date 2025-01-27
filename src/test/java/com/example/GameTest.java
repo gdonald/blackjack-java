@@ -5,6 +5,7 @@ import org.mockito.MockedConstruction;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,6 +78,51 @@ public class GameTest {
   void testClear() {
     game.clear();
     assertEquals("\033[H\033[2J", outputStream.toString());
+  }
+
+  @Nested
+  @DisplayName("splitCurrentHand tests")
+  class SplitCurrentHandTests {
+    private PlayerHand playerHand;
+
+    @BeforeEach
+    void setUp() {
+      shoe.buildNewShoe(1);
+      doNothing().when(game).playDealerHand();
+      when(game.getChar()).thenReturn('s', 'q');
+
+      ArrayList<PlayerHand> playerHands = new ArrayList<>();
+      playerHand = spy(new PlayerHand(game));
+      playerHands.add(playerHand);
+      when(game.getPlayerHands()).thenReturn(playerHands);
+      doNothing().when(game).drawHands();
+    }
+
+    @Test
+    void testSplitCurrentHand() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(7, 0),
+          new Card(7, 1),
+          new Card(8, 0),
+          new Card(8, 1));
+      playerHand.dealCards(2);
+
+      game.splitCurrentHand();
+      verify(game, times(2)).drawHands();
+    }
+
+    @Test
+    void testSplitCurrentHandHandIsDone() {
+      when(shoe.getNextCard()).thenReturn(
+          new Card(0, 0),
+          new Card(0, 1),
+          new Card(10, 0),
+          new Card(10, 1));
+      playerHand.dealCards(2);
+
+      game.splitCurrentHand();
+      verify(game, times(2)).drawHands();
+    }
   }
 
   @Nested

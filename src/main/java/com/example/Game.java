@@ -80,18 +80,18 @@ public class Game {
   }
 
   public void splitCurrentHand() {
-    int handCount = playerHands.size();
+    int handCount = getPlayerHands().size();
     PlayerHand newHand = new PlayerHand(this);
-    playerHands.add(newHand);
+    getPlayerHands().add(newHand);
 
     while (handCount > currentHand) {
-      PlayerHand playerHand = playerHands.get(handCount - 1).clone();
-      playerHands.set(handCount, playerHand);
+      PlayerHand playerHand = getPlayerHands().get(handCount - 1).clone();
+      getPlayerHands().set(handCount, playerHand);
       handCount--;
     }
 
-    PlayerHand currentPlayerHand = playerHands.get(currentHand);
-    PlayerHand splitHand = playerHands.get(currentHand + 1);
+    PlayerHand currentPlayerHand = getPlayerHands().get(currentHand);
+    PlayerHand splitHand = getPlayerHands().get(currentHand + 1);
 
     Card splitCard1 = currentPlayerHand.cards.get(1).clone();
     Card splitCard0 = currentPlayerHand.cards.get(0).clone();
