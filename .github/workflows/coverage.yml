@@ -42,17 +42,11 @@ jobs:
       - name: Generate Coverage Report
         run: ./gradlew clean test jacocoTestReport
 
-      #      - name: Deploy to GitHub Pages
-      #        uses: peaceiris/actions-gh-pages@v3
-      #        with:
-      #          github_token: ${{ secrets.GITHUB_TOKEN }}
-      #          publish_dir: ./build/reports/jacoco/test/html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: ./build/reports/jacoco/test/html
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
