@@ -4,3 +4,5 @@
 blackjack.txt
 build/
 .idea
+.clj-kondo/
+.lsp/
