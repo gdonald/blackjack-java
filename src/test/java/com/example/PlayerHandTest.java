@@ -255,6 +255,23 @@ class PlayerHandTest {
     }
 
     @Test
+    @DisplayName("split refused must not fall through to double")
+    public void testSplitRefusedDoesNotFallThroughToDouble() {
+      when(playerHand.canSplit()).thenReturn(false);
+      when(playerHand.canDbl()).thenReturn(true);
+      doNothing().when(game).splitCurrentHand();
+      doNothing().when(playerHand).dbl();
+      doNothing().when(playerHand).stand();
+      when(game.getChar()).thenReturn('p', 's');
+
+      playerHand.getAction();
+
+      verify(game, never()).splitCurrentHand();
+      verify(playerHand, never()).dbl();
+      verify(playerHand).stand();
+    }
+
+    @Test
     @DisplayName("hand can dbl")
     public void testHandCanDbl() {
       when(playerHand.canDbl()).thenReturn(true);

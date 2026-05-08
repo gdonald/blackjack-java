@@ -208,6 +208,7 @@ public class PlayerHand extends Hand {
           game.splitCurrentHand();
           return;
         }
+        break;
       case 'd':
         if (canDbl()) {
           dbl();
